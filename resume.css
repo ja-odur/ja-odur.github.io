@@ -1,0 +1,69 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+.resume-container {
+    width: 50%;
+    margin: 5vh auto;
+    min-height: 100vh;
+    padding: 40px;
+    max-width: 1000px;
+    color: #212629;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
+}
+
+.resume-header {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100px;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(0,0,0,.1)
+}
+
+.resume-title {
+    display: flex;
+    flex-wrap: wrap;
+    width: 70%;
+}
+
+.title-content {
+    width: 90%;
+}
+
+.name {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 3rem;
+}
+
+.occupation {
+ font-size: 1.2rem;
+}
+
+.resume-contact {
+    width: 25%;
+    font-size: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    border-left: 1px solid rgba(0,0,0,.1);
+    padding: 0 2%;
+
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 20px;
+}
+
+.contact-item>svg {
+    height: 15px;
+    margin: 0 10px;
+}
+
+.clickable:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
