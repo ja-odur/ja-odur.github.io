@@ -67,3 +67,99 @@ body {
     cursor: pointer;
     text-decoration: underline;
 }
+
+.resume-manifest {
+    text-align: justify;
+    line-height: 25px;
+    margin: 40px 0;
+}
+
+.resume-body {
+   display: flex;
+    flex-wrap: wrap;
+    border: 1px solid red;
+}
+
+.resume-body-main {
+    width: 70%;
+    border: 1px solid yellow;
+}
+
+.resume-body-side {
+    width: 25%;
+    padding: 0 2%;
+    border: 1px solid blue;
+}
+
+.resume-body-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    color: #2D90A6;
+}
+
+.resume-body-pager {
+    display: inline-block;
+    width: 5px;
+    height: 25px;
+    margin-right: 10px;
+    background: #212629;
+    border: 1px solid #212629;
+}
+
+.resume-work-experience {
+    margin: 20px 0;
+}
+
+.resume-work-experience-title {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.job-title {
+    width: 60%;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.job-date {
+    width: 40%;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: right;
+}
+
+.job-company {
+   width: 100%;
+    font-weight: 300;
+}
+
+.resume-work-experience-body {
+    margin-top: 10px;
+    line-height: 20px;
+    text-align: justify;
+}
+
+.resume-work-experience-stack {
+
+}
+
+.stack-label {
+    font-weight: bold;
+}
+
+.tech-stacks-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+
+.tech-stack {
+    margin: 5px;
+    padding: 2px 5px;
+    border: 1px solid #212629;
+    border-radius: 10px;
+}
