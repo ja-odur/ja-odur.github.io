@@ -5,9 +5,14 @@
         <title>J. A. Odur</title>
         <link rel = "stylesheet" type = "text/css" href = "resume.css" />
         <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+        <script src="https://unpkg.com/html2canvas@1.0.0-rc.5/dist/html2canvas.js" ></script>
     </head>
     <body>
-        <div class="resume-container">
+        <div class="btn-wrapper">
+           <button class="pdf-btn" onclick="toPDF()">download pdf</button>
+        </div>
+        <div class="resume-container" id="resume">
             <div class="resume-header">
                 <div class="resume-title">
                     <span class="title-content name">Joseph Odur</span>
@@ -293,14 +298,23 @@
                     <div class="hobby">Learning new techs</div>
                     <div class="hobby">Board games</div>
                     <div class="hobby">Soccer</div>
-
-                    <div class="resume-body-title"><span class="resume-body-pager"></span>Aliases</div>
-                    <div class="hobby">J. A. Odur</div>
-                    <div class="hobby">ja-odur</div>
-                    <div class="hobby">jaodur</div>
                 </div>
             </div>
         </div>
 
+    <script type="text/javascript">
+            function toPDF () {
+                 const filename  = 'resume-joseph-odur.pdf';
+
+                 html2canvas(
+                     document.querySelector('#resume'),
+                     {scale: 2}
+                 ).then(canvas => {
+                     let pdf = new jsPDF('p', 'mm', 'a4');
+                     pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298);
+                     pdf.save(filename);
+                 });
+            }
+        </script>
     </body>
 </html>
