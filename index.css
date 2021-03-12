@@ -104,9 +104,29 @@ body {
     letter-spacing: 0;
 }
 
-.text-huh {
-    font-weight: 100;
+.text-intro-name {
+    font-weight: 900;
+    font-style: italic;
+    font-size: 48px;
+    line-height: 56px;
+    color: rgba(0, 0, 0, 0.87);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0;
+}
+
+.text-occupation {
+    font-weight: 300;
     font-size: 24px;
+    line-height: 32px;
+    color: rgba(0, 0, 0, 0.87);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: 0;
+}
+
+.text-more {
+    font-weight: 100;
+    font-style: italic;
+    font-size: 16px;
     line-height: 32px;
     color: rgba(0, 0, 0, 0.87);
     -webkit-font-smoothing: antialiased;
