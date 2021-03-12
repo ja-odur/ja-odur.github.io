@@ -80,9 +80,12 @@ body {
     flex-wrap: wrap;
     min-width: 300px;
     max-width: 500px;
+    /*align-items: center;*/
+    /*justify-content: center;*/
 }
 
 .text-container>span {
+    /*min-width: 360px;*/
     min-width: 60%;
 }
 
