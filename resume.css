@@ -5,21 +5,29 @@ body {
 }
 
 .btn-wrapper {
-    width: 55%;
+    width: 50%;
     margin: 4vh auto 1vh auto;
     max-width: 1000px;
+    min-width: 850px;
     color: #212629;
     text-align: right;
 }
 
 .pdf-btn {
-    /*background: #ffffff;*/
+    background: #ffffff;
     border: none;
     border-radius: 5px;
     padding: 5px;
     text-transform: uppercase;
     font-size: 0.7rem;
     box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
+    text-decoration: none;
+    color: #212629;
+}
+
+.pdf-btn:hover {
+    color: #0000ba;
+    cursor: pointer;
 }
 
 .pdf-btn:hover {
@@ -28,9 +36,10 @@ body {
 
 .resume-container {
     width: 50%;
-    margin: 0 auto 5vh auto;
+    margin: 0 auto;
     min-height: 100vh;
     padding: 40px;
+    min-width: 850px;
     max-width: 1000px;
     color: #212629;
     box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
