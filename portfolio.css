@@ -4,12 +4,56 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
-.coming-soon {
+.content {
+    display: flex;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+.project {
+    width: 250px;
+    height: 300px;
+    /*border: 1px solid red*/
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
+}
+
+.project-title {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    font-weight: 900;
-    font-style: italic;
-    font-size: 50px;
+    height: 30%;
+    /*border: 1px solid blue;*/
+    text-transform: lowercase;
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+.project-desc {
+    display: flex;
+    /*align-items: center;*/
+    height: 50%;
+    /*border: 1px solid green;*/
+
+    text-align: justify;
+    text-justify: inter-word;
+    padding: 0 10px;
+}
+
+.project-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5px;
+    height: 20%;
+    /*border: 1px solid yellow;*/
+}
+
+.blue {
+    background: #0556f3;
+    color: white;
+}
+
+.disabled {
+    cursor: not-allowed;
+    color: grey;
 }
