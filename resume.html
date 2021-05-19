@@ -364,19 +364,19 @@
             </div>
         </div>
 
-    <script type="text/javascript">
-            function toPDF () {
-                 const filename  = 'resume-joseph-odur.pdf';
+        <script type="text/javascript">
+                function toPDF () {
+                     const filename  = 'resume-joseph-odur.pdf';
 
-                 html2canvas(
-                     document.querySelector('#resume'),
-                     {scale: 2}
-                 ).then(canvas => {
-                     let pdf = new jsPDF('p', 'mm', 'a4');
-                     pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298);
-                     pdf.save(filename);
-                 });
-            }
+                     html2canvas(
+                         document.querySelector('#resume'),
+                         {scale: 2}
+                     ).then(canvas => {
+                         let pdf = new jsPDF('p', 'mm', 'a4');
+                         pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 211, 298);
+                         pdf.save(filename);
+                     });
+                }
         </script>
     </body>
 </html>
