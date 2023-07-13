@@ -1,21 +1,24 @@
 import logoGray from '../../logo-gray.svg';
-import { Outlet, Link, NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 
 function NavBar() {
   return (
       <nav className="nav">
         <div className="nav-container">
-          <Link to="/">
-            <div className="nav-intro">
+          <div className="nav-intro">
+            <Link to="/">
               <img className="logo-gray" src={logoGray}  alt="logo" />
-              {/*<svg className="circle" focusable="false" viewBox="0 0 24 24" aria-hidden="true">*/}
-              {/*  <path*/}
-              {/*      d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12zm10 6c3.31 0 6-2.69 6-6s-2.69-6-6-6-6 2.69-6 6 2.69 6 6 6z"></path>*/}
-              {/*</svg>*/}
-              <div className="nav-name">j. a. odur</div>
-            </div>
-          </Link>
+            </Link>
+
+            <NavLink to="/">
+              {
+                ({ isActive, isPending }) => (
+                  <span className={isActive ? "nav-name nav-info-active" : "nav-name"}>j. a. odur</span>
+                )
+              }
+            </NavLink>
+          </div>
           <div className="nav-info">
             <NavLink to="/projects" >
               {
@@ -24,7 +27,14 @@ function NavBar() {
                 )
               }
             </NavLink>
-            <Link to="/resume" target="_blank">resume</Link>
+            <NavLink to="/resume" >
+              {
+                ({ isActive, isPending }) => (
+                  <span className={isActive ? "nav-info-active" : ""}>resume</span>
+                )
+              }
+            </NavLink>
+            {/*<Link to="/resume" target="_blank">resume</Link>*/}
             <a href="https://github.com/ja-odur" target="_blank">
               github
             </a>
