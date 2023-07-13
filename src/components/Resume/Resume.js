@@ -1,4 +1,6 @@
 import "../../Resume.css"
+import NavBar from "../common/NavBar";
+import Content from "../common/Content";
 import WorkExperience from "./WorkExperience";
 import workExperienceData from "./data/WorkExperience";
 import ResumeSideBar from "./ResumeSideBar";
@@ -7,6 +9,7 @@ import PdfDownloader from "../common/PdfDownloader";
 function ResumeHeader() {
     return (
         <div className="resume-header">
+            <PdfDownloader rootElementId={"resume"} downloadFileName={"resume-joseph-odur"} />
             <div className="resume-title">
                 <span className="title-content name">Joseph Odur</span>
                 <span className="title-content occupation">Software Engineer</span>
@@ -72,10 +75,9 @@ function ResumeManifest() {
     );
 }
 
-
-
 function ResumeContent() {
    return (
+
        <div className="resume-body-main">
            <div className="resume-body-title"><span className="resume-body-pager"></span>work experience</div>
            {
@@ -113,16 +115,14 @@ function ResumeBody() {
 function Resume() {
   return (
     <>
-        <PdfDownloader rootElementId={"resume"} downloadFileName={"resume-joseph-odur"} />
-        {/*<div className="btn-wrapper">*/}
-        {/*    <a className="pdf-btn" href="resume.pdf" target="_blank">download pdf</a>*/}
-        {/*</div>*/}
-
-        <div className="resume-container" id="resume">
-            <ResumeHeader />
-            <ResumeManifest />
-            <ResumeBody />
-        </div>
+        <NavBar />
+        <Content>
+            <div className="resume-container" id="resume">
+                <ResumeHeader />
+                <ResumeManifest />
+                <ResumeBody />
+            </div>
+        </Content>
     </>
   );
 }
