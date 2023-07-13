@@ -94,7 +94,7 @@
 
 .contact-item>svg {
     height: 15px;
-    margin: 0 10px;
+    margin: 0 5px 0 0;
 }
 
 .clickable:hover {
@@ -173,10 +173,6 @@
     margin-top: 10px;
     line-height: 20px;
     text-align: justify;
-}
-
-.xx {
-    /*border: 1px solid green;*/
 }
 
 .resume-work-experience-body ul li p {
