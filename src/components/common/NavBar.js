@@ -1,5 +1,5 @@
 import logoGray from '../../logo-gray.svg';
-import {Outlet, Link} from "react-router-dom";
+import { Outlet, Link, NavLink } from "react-router-dom";
 
 
 function NavBar() {
@@ -17,7 +17,13 @@ function NavBar() {
             </div>
           </Link>
           <div className="nav-info">
-            <a href="portfolio.html" target="_blank">projects</a>
+            <NavLink to="/projects" >
+              {
+                ({ isActive, isPending }) => (
+                  <span className={isActive ? "nav-info-active" : ""}>projects</span>
+                )
+              }
+            </NavLink>
             <Link to="/resume" target="_blank">resume</Link>
             <a href="https://github.com/ja-odur" target="_blank">
               github

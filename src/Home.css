@@ -77,12 +77,18 @@
     border-radius: 5px;
 }
 
+.nav-info-active {
+    font-weight: bold;
+    font-style: italic;
+    text-decoration: underline;
+}
+
 .content {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    height: calc(100vh - 75px);
+    min-height: calc(100vh - 75px);
 }
 
 .text-container {
