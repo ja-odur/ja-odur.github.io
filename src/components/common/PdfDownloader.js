@@ -8,10 +8,16 @@ function setBoxShadow(el, shadowStyle) {
 
 const PdfDownloader = ({rootElementId , downloadFileName}) => {
 
+    const downloadBtnID = "download-btn"
+
     const downloadPdfDocument = () => {
         const element = document.getElementById(rootElementId);
 
-        const onclone = (_, element) => setBoxShadow(element, 'none')
+        const onclone = (_, element) => {
+            const downloadBtn = element.querySelector(`#${downloadBtnID}`)
+            downloadBtn.style.display = 'none'
+            setBoxShadow(element, 'none')
+        }
 
         html2canvas(element, { onclone })
             .then((canvas) => {
@@ -29,7 +35,7 @@ const PdfDownloader = ({rootElementId , downloadFileName}) => {
     }
 
     return (
-        <div className="btn-wrapper">
+        <div className="btn-wrapper" id={downloadBtnID}>
            <button className="pdf-btn" onClick={downloadPdfDocument}>Download Pdf</button>
         </div>
     )
