@@ -8,11 +8,27 @@
     justify-content: space-between;
 }
 
+.nav-container a {
+    text-decoration: none;
+}
+
 .circle {
     width: 25px;
     height: 25px;
     fill: rgb(115 115 115);
     margin-right: 10px;
+}
+
+.logo-gray {
+    width: 70px;
+    height: 70px;
+    /*fill: rgb(115 115 115);*/
+    margin-right: 0px;
+}
+
+.logo-gray:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 .nav-intro {
