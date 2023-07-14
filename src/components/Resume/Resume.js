@@ -1,3 +1,4 @@
+import "../../css/Home.css"
 import "../../css/Resume.css"
 import NavBar from "../common/NavBar";
 import Content from "../common/Content";

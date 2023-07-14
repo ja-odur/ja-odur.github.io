@@ -34,7 +34,6 @@ function NavBar() {
                 )
               }
             </NavLink>
-            {/*<Link to="/resume" target="_blank">resume</Link>*/}
             <a href="https://github.com/ja-odur" target="_blank">
               github
             </a>
