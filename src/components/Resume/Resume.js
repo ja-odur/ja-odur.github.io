@@ -1,4 +1,4 @@
-import "../../Resume.css"
+import "../../css/Resume.css"
 import NavBar from "../common/NavBar";
 import Content from "../common/Content";
 import WorkExperience from "./WorkExperience";

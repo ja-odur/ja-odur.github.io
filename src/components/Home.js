@@ -1,4 +1,4 @@
-import "../Home.css"
+import "../css/Home.css"
 import NavBar from "./common/NavBar";
 import Content from "./common/Content";
 
