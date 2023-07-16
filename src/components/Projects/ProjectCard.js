@@ -16,7 +16,7 @@ function ProjectCard({name, description, techStacks, link, image}) {
     return (
         <a className="project-card-link" href={link} target="_blank">
             <div className="project-card" style={{transform: randomRotate()}}>
-                <img src={image || `https://picsum.photos/id/${1 + 19 * 1}/600/300`} alt="test" />
+                <img src={image || `https://picsum.photos/id/${1 + 19 * 1}/600/300`} alt={name} />
                 <h2>{name}</h2>
                 <p>{description}</p>
                 <h2>Tech Stacks</h2>
