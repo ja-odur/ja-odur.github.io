@@ -1,0 +1,30 @@
+{
+  "short_name": "J. A. Odur",
+  "name": "J. A. Odur",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "120x120 96x96 32x32 16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "logo100.png",
+      "type": "image/png",
+      "sizes": "100x100"
+    },
+    {
+      "src": "logo200.png",
+      "type": "image/png",
+      "sizes": "200x200"
+    },
+    {
+      "src": "logo400.png",
+      "type": "image/png",
+      "sizes": "400x400"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
