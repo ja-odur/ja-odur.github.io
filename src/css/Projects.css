@@ -1,0 +1,53 @@
+.project-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+    /*grid-template-columns: repeat(auto-fit, minmax(15rem, 18rem));*/
+    gap: 2rem;
+    padding: 1rem;
+    font: 500 100%/1.4 system-ui;
+    max-width: 1000px;
+    /*background-color: #ccc;*/
+    margin: 40px 0;
+}
+
+.project-card {
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem 2rem;
+    /*background: #f8f3e8;*/
+    background: rgba(248, 243, 232, 0.1);
+    /*box-shadow: 0 0 40px rgba(0, 0, 0, 0.2), 0 0 40px rgba(0, 0, 0, 0.2);*/
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175), 0 1rem 3rem rgba(0,0,0,.175);
+    border-radius: 3px;
+}
+
+.project-card-link {
+    text-decoration: none;
+}
+
+.project-card > img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 600/300;
+}
+
+.project-card > h2 {
+    margin-top: 1rem;
+    font-family: "Kalam", cursive;
+    font-weight: normal;
+    font-size: 2rem;
+    color: #4a4a7d;
+    text-align: center;
+}
+
+.project-card > p {
+    font-family: "Kalam", cursive;
+    font-size: 1rem;
+    color: #5e5e89;
+    text-align: center;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+}

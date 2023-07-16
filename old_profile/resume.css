@@ -1,0 +1,269 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+.btn-wrapper {
+    width: 50%;
+    margin: 4vh auto 1vh auto;
+    max-width: 1000px;
+    min-width: 850px;
+    color: #212629;
+    text-align: right;
+}
+
+.pdf-btn {
+    background: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
+    text-decoration: none;
+    color: #212629;
+}
+
+.pdf-btn:hover {
+    color: #0000ba;
+    cursor: pointer;
+}
+
+.pdf-btn:hover {
+    cursor: pointer;
+}
+
+.resume-container {
+    width: 50%;
+    margin: 40px auto;
+    min-height: 100vh;
+    padding: 40px;
+    min-width: 850px;
+    max-width: 1000px;
+    color: #212629;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
+}
+
+.resume-header {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100px;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(0,0,0,.1)
+}
+
+.resume-title {
+    display: flex;
+    flex-wrap: wrap;
+    width: 70%;
+}
+
+.title-content {
+    width: 90%;
+}
+
+.name {
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 3rem;
+}
+
+.occupation {
+ font-size: 1.2rem;
+}
+
+.resume-contact {
+    width: 25%;
+    font-size: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    border-left: 1px solid rgba(0,0,0,.1);
+    padding: 0 2%;
+
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 20px;
+}
+
+.contact-item>svg {
+    height: 15px;
+    margin: 0 10px;
+}
+
+.clickable:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.resume-manifest {
+    text-align: justify;
+    line-height: 25px;
+    margin: 40px 0;
+}
+
+.resume-body {
+   display: flex;
+    flex-wrap: wrap;
+}
+
+.resume-body-main {
+    width: 70%;
+}
+
+.resume-body-side {
+    width: 25%;
+    padding: 0 2%;
+}
+
+.resume-body-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    color: #2D90A6;
+}
+
+.resume-body-pager {
+    display: inline-block;
+    width: 5px;
+    height: 25px;
+    margin-right: 10px;
+    background: #212629;
+    border: 1px solid #212629;
+}
+
+.resume-work-experience {
+    margin: 20px 0;
+}
+
+.resume-work-experience-title {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.job-title {
+    width: 60%;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.job-date {
+    width: 40%;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: right;
+    text-transform: capitalize;
+}
+
+.job-company {
+   width: 100%;
+    font-weight: 300;
+}
+
+.resume-work-experience-body {
+    margin-top: 10px;
+    line-height: 20px;
+    text-align: justify;
+}
+
+.resume-work-experience-stack {
+
+}
+
+.stack-label {
+    font-weight: bold;
+}
+
+.tech-stacks-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+
+.tech-stack {
+    margin: 5px;
+    padding: 2px 5px;
+    border: 1px solid #212629;
+    border-radius: 10px;
+}
+
+.skill-category {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.skill-container {
+    margin: 20px 0;
+    font-size: 0.9rem;
+    font-weight: 300;
+}
+
+.progress-wrapper {
+    margin-top: 5px;
+    height: 4px;
+    background: #212629;
+    /*border: 1px solid blue*/
+}
+
+.progress-bar {
+    height: 100%;
+    background: #41D2F2;
+    /*border: 1px solid #41D2F2;*/
+}
+
+.progress-length-full {
+    width: 100%;
+}
+
+.progress-length-100 {
+    width: 100%;
+}
+
+
+.progress-length-80 {
+    width: 80%;
+}
+
+.progress-length-60 {
+    width: 60%;
+}
+
+.progress-length-40 {
+    width: 40%;
+}
+
+.progress-length-20 {
+    width: 20%;
+}
+
+.education-wrapper {
+    margin: 10px 0;
+    padding-left: 20px;
+    text-transform: uppercase;
+}
+
+.education-level {
+    font-weight: bold;
+}
+
+.education-institution {
+    font-weight: 300;
+}
+
+.education-year {
+    font-weight: 300;
+}
+
+.hobby {
+    margin: 10px 0;
+    padding-left: 20px;
+    font-weight: 300;
+    text-transform: uppercase;
+}
