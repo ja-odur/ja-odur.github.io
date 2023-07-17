@@ -44,9 +44,10 @@ function TypedIntro() {
                         "J. A. Odur.",
                         4000,
                         "Ja-",
-                        500,
+                        300,
                         "ja-odur.",
-                        3000
+                        3000,
+                        "jos"
                     ]}
                     repeat={Infinity}
                 />
