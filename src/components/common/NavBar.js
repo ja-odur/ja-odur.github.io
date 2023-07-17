@@ -34,7 +34,7 @@ function NavBar() {
                 )
               }
             </NavLink>
-            <a href="https://github.com/ja-odur" target="_blank">
+            <a href="https://github.com/ja-odur" target="_blank" rel="noreferrer">
               github
             </a>
           </div>
