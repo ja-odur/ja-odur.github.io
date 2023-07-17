@@ -108,10 +108,21 @@
     min-width: 60%;
 }
 
+.text-container>span {
+    line-height: 50px;
+}
+
+.text-container>span:first-child {
+    line-height: 100px;
+}
+
+.text-container>span:last-child {
+    line-height: 25px;
+}
+
 .text-greeting {
     font-weight: 300;
     font-size: 48px;
-    line-height: 56px;
     color: rgba(0, 0, 0, 0.87);
     -webkit-font-smoothing: antialiased;
     letter-spacing: 0;
