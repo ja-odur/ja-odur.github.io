@@ -14,12 +14,12 @@ function TypedGreeting({doneTypingCallback}) {
                 500,
                 "Hello 👋",
                 500,
-                "Hello 👋.",
+                "Hello 👋.,,",
                 800,
                 "Hello 👋,",
                 () => doneTypingCallback && doneTypingCallback()
             ]}
-            deletionSpeed={90}
+            deletionSpeed={1}
         />
     )
 }
