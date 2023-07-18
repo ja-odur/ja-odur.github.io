@@ -19,7 +19,6 @@ function TypedGreeting({doneTypingCallback}) {
                 "Hello 👋,",
                 () => doneTypingCallback && doneTypingCallback()
             ]}
-            deletionSpeed={1}
         />
     )
 }
@@ -38,7 +37,7 @@ function TypedIntro() {
                 <TypeAnimation
                     cursor={true}
                     sequence={[
-                        500,
+                        300,
                         "Joseph Odur.",
                         7000,
                         "J. A. Odur.",
@@ -61,7 +60,7 @@ function TypedOccupation() {
         <TypeAnimation
             cursor={false}
             sequence={[
-                5000,
+                4800,
                 "A Software Engineer,",
             ]}
         />
@@ -73,7 +72,7 @@ function TypedMore() {
         <TypeAnimation
             cursor={false}
             sequence={[
-                7000,
+                6600,
                 "and human being from Earth!",
             ]}
         />
