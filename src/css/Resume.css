@@ -1,3 +1,32 @@
+ul.round {
+	margin: 0;
+	padding: 0;
+}
+
+ul.round ul {
+    list-style-type: disc;
+}
+
+ul.round > li {
+    list-style: none;
+    position: relative;
+    padding: 0 0 5px 20px;
+}
+
+ul.round > li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 8px;
+    height: 8px;
+    /*background-color: darkgray;*/
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+}
+
 .btn-wrapper {
     color: #212629;
     font-family: 'Source Sans Pro', sans-serif;
@@ -159,6 +188,30 @@
 .job-company {
    width: 100%;
     font-weight: 300;
+}
+
+.multi-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+
+.multi-job-title {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+.multi-job-date {
+    font-size: 1.3rem;
+    font-weight: 300;
+    text-transform: capitalize;
+}
+.multi-job-company {
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.multi-job-description {
+    margin: 10px 0;
 }
 
 .resume-work-experience-body {
