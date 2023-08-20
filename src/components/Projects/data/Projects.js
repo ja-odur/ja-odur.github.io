@@ -16,7 +16,7 @@ const projects = [
         name: "Puzzled",
         image: null,
         description: "Puzzled is a web based gaming app. The app currently can crack any 2x2 or 3x3 Sudoku puzzles. Coming soon - poker.",
-        techStacks: "python, react/typescript, graphene, docker, postgres, redis",
+        techStacks: "python, golang, react/typescript, graphene, docker, postgres, redis",
         link: "https://github.com/ja-odur/puzzled",
     },
     {
