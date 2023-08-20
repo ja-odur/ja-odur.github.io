@@ -1,5 +1,44 @@
 const workExperienceData = [
     {
+        company: "MFS Africa",
+        companyDescription: "MFS Africa is a financial technology company offering mobile financial solutions across Africa by enabling digital inter-operability. MFS Africa’s services allow its partners’ customers and SMEs to send and receive money across borders, payments instruments and agents (mobile wallet, card, bank account, and over the counter).",
+        companyLocation: "Kampala, Uganda",
+        duration: "Feb 2022 - present",
+        titleRoles: [
+            {
+                title: "Senior Software Engineer - Beyonic",
+                duration: "Apr 2023 - present",
+                location: "Kampala, Uganda",
+                description: "Beyonic is a secure, digital payment gateway in Uganda for small businesses. Allow customers to pay via a link, QR code, or in person.",
+                roles: [
+                    <p>Guiding the delivery of the application backend.</p>,
+                    <p>Facilitating cross-team collaboration with Front-end, QA, UI/UX and Operations by providing back-end platform insights and issue resolution support.</p>,
+                    <p>Actively generating ideas and engaging in brainstorming sessions to enhance product quality.</p>,
+                    <p>Executing measures to reduce technical debt, enhancing backend inter-service communication and overall performance.</p>,
+                    <p>Maintaining a vigilant focus on security and ongoing refactoring efforts.</p>,
+                ],
+            },
+            {
+                title: "Software Engineer - Beyonic",
+                duration: "Feb 2022 - Mar 2023",
+                location: "Kampala, Uganda",
+                description: "Beyonic is a secure, digital payment gateway in Uganda for small businesses. Allow customers to pay via a link, QR code, or in person.",
+                roles: [
+                    <p>Leading the oversight and implementation of the Beyonic backend infrastructure on the Google Cloud Platform (GCP).</p>,
+                    <p>Improving micro-services test-ability by refining the internal mocking library (bm-apis).</p>,
+                    <p>Actively engaging in code review processes.</p>,
+                    <p>Facilitating the integration of new team members into the project</p>,
+                ],
+            },
+        ],
+        techStacks: [
+            "Microservices",
+            "Python/Django",
+            "Rest Framework",
+            "GCP",
+        ]
+    },
+    {
         company: "AirQo, Kampala, Uganda",
         companyDescription: "AirQo is Africa's leading air quality monitoring, research and analytics network. AirQo uses low cost technologies and AI to close the gaps in air quality data across the continent with a goal to find data-driven solutions to air quality challenges.",
         jobTitle: "Software Engineer",

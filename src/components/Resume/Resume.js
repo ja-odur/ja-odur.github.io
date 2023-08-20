@@ -2,7 +2,7 @@ import "../../css/Home.css"
 import "../../css/Resume.css"
 import NavBar from "../common/NavBar";
 import Content from "../common/Content";
-import WorkExperience from "./WorkExperience";
+import WorkExperience, { MultipleTitleWorkExperience } from "./WorkExperience";
 import workExperienceData from "./data/WorkExperience";
 import ResumeSideBar from "./ResumeSideBar";
 import PdfDownloader from "../common/PdfDownloader";
@@ -84,17 +84,27 @@ function ResumeContent() {
            {
                workExperienceData.map((workExperience, id) => {
                    return (
-                       <WorkExperience
-                           company={workExperience.company}
-                           companyDescription={workExperience.companyDescription}
-                           jobTitle={workExperience.jobTitle}
-                           duration={workExperience.duration}
-                           roles={workExperience.roles}
-                           otherRoles={workExperience.otherRoles}
-                           nestedRoles={workExperience.nestedRoles}
-                           techStacks={workExperience.techStacks}
-                           key={id}
-                       />
+                       workExperience.titleRoles ?
+                           <MultipleTitleWorkExperience
+                               company={workExperience.company}
+                               companyDescription={workExperience.companyDescription}
+                               companyLocation={workExperience.companyLocation}
+                               duration={workExperience.duration}
+                               titleRoles={workExperience.titleRoles}
+                               techStacks={workExperience.techStacks}
+                           />
+                           :
+                           <WorkExperience
+                               company={workExperience.company}
+                               companyDescription={workExperience.companyDescription}
+                               jobTitle={workExperience.jobTitle}
+                               duration={workExperience.duration}
+                               roles={workExperience.roles}
+                               otherRoles={workExperience.otherRoles}
+                               nestedRoles={workExperience.nestedRoles}
+                               techStacks={workExperience.techStacks}
+                               key={id}
+                           />
                    )
                })
            }
