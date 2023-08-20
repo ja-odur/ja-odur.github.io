@@ -53,7 +53,7 @@ const workExperienceData = [
                     <p>Guiding the re-stacking and re-design of the AirQo website.</p>,
                     <p>Directing the modular transformation of the NetManager platform into distinct applications, including the device calibration service.</p>,
                     <p>Overseeing the advancement of AirQlouds dashboards, which involves categorizing monitoring devices into various scales of geographical areas to enhance analytical depth.</p>,
-                    <p>Facilitating the integration of new team members into the project</p>,
+                    <p>Facilitating the integration of new team members into the project.</p>,
                 ],
             },
             {
@@ -66,17 +66,9 @@ const workExperienceData = [
                     <p>Collaborated closely with the Data Science team to <b>integrate heatmap and model calibration</b> features into the NetManager platform.</p>,
                     <p>Conducted training sessions for <b>selected local AirQommunity champions</b>, enabling them to utilize AirQo tools effectively for the purpose of raising awareness about air quality.</p>,
                     <p>Enhanced the <b>existing micro-service architecture</b>.</p>,
-                    <p>Directed the implementation of <b>externally outsourced applications/tools</b> to external teams..</p>
+                    <p>Directed the implementation of <b>externally outsourced applications/tools</b> to external teams.</p>
                 ],
             },
-        ],
-        roles: [
-            <p>Assumed complete ownership of <b>NetManager</b> platform, facilitating device monitoring and air quality data visualization through heatmaps and charts.</p>,
-            <p>Enacted <b>mobile responsiveness</b> for the platform, simplifying its adoption by the hardware team.</p>,
-            <p>Collaborated closely with the Data Science team to <b>integrate heatmap and model calibration</b> features into the NetManager platform.</p>,
-            <p>Conducted training sessions for <b>selected local AirQommunity champions</b>, enabling them to utilize AirQo tools effectively for the purpose of raising awareness about air quality.</p>,
-            <p>Enhanced the <b>existing micro-service architecture</b>.</p>,
-            <p>Directed the implementation of <b>externally outsourced applications/tools</b> to external teams..</p>
         ],
         techStacks: [
             "Microservice-Architecture",
@@ -138,7 +130,7 @@ const workExperienceData = [
                 description: <p>Contributed to the development of <b>AndelaEats</b>, a web-based application designed to facilitate catering services management within the company. Additionally, enabled employees to conveniently pre-order lunches and breakfasts up to a day in advance. Key accomplishments encompassed:</p>,
                 roles: [
                     <p>Seamless integration of the application's authentication system with the company's login mechanism.</p>,
-                    <p>Successful integration of NFC cards into the system, streamlining user interaction by allowing card swiping to instantly display order details for caterers</p>,
+                    <p>Successful integration of NFC cards into the system, streamlining user interaction by allowing card swiping to instantly display order details for caterers.</p>,
                 ],
                 techStacks: [
                     "Python/Flask",
