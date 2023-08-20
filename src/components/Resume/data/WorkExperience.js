@@ -27,7 +27,7 @@ const workExperienceData = [
                     <p>Leading the oversight and implementation of the Beyonic backend infrastructure on the Google Cloud Platform (GCP).</p>,
                     <p>Improving micro-services test-ability by refining the internal mocking library (bm-apis).</p>,
                     <p>Actively engaging in code review processes.</p>,
-                    <p>Facilitating the integration of new team members into the project</p>,
+                    <p>Facilitating the integration of new team members into the project.</p>,
                 ],
             },
         ],
@@ -39,10 +39,37 @@ const workExperienceData = [
         ]
     },
     {
-        company: "AirQo, Kampala, Uganda",
+        company: "AirQo",
+        companyLocation: "Kampala, Uganda",
         companyDescription: "AirQo is Africa's leading air quality monitoring, research and analytics network. AirQo uses low cost technologies and AI to close the gaps in air quality data across the continent with a goal to find data-driven solutions to air quality challenges.",
         jobTitle: "Software Engineer",
-        duration: "Aug 2020 - present",
+        duration: "Aug 2020 - Jul 2022",
+        titleRoles: [
+            {
+                title: "Software Engineer (Part-time)",
+                duration: "jan 2022 - jul 2022",
+                location: "Kampala, Uganda",
+                roles: [
+                    <p>Guiding the re-stacking and re-design of the AirQo website.</p>,
+                    <p>Directing the modular transformation of the NetManager platform into distinct applications, including the device calibration service.</p>,
+                    <p>Overseeing the advancement of AirQlouds dashboards, which involves categorizing monitoring devices into various scales of geographical areas to enhance analytical depth.</p>,
+                    <p>Facilitating the integration of new team members into the project</p>,
+                ],
+            },
+            {
+                title: "Software Engineer",
+                duration: "Aug 2020 - Jan 2022",
+                location: "Kampala, Uganda",
+                roles: [
+                    <p>Assumed complete ownership of <b>NetManager</b> platform, facilitating device monitoring and air quality data visualization through heatmaps and charts.</p>,
+                    <p>Enacted <b>mobile responsiveness</b> for the platform, simplifying its adoption by the hardware team.</p>,
+                    <p>Collaborated closely with the Data Science team to <b>integrate heatmap and model calibration</b> features into the NetManager platform.</p>,
+                    <p>Conducted training sessions for <b>selected local AirQommunity champions</b>, enabling them to utilize AirQo tools effectively for the purpose of raising awareness about air quality.</p>,
+                    <p>Enhanced the <b>existing micro-service architecture</b>.</p>,
+                    <p>Directed the implementation of <b>externally outsourced applications/tools</b> to external teams..</p>
+                ],
+            },
+        ],
         roles: [
             <p>Assumed complete ownership of <b>NetManager</b> platform, facilitating device monitoring and air quality data visualization through heatmaps and charts.</p>,
             <p>Enacted <b>mobile responsiveness</b> for the platform, simplifying its adoption by the hardware team.</p>,
