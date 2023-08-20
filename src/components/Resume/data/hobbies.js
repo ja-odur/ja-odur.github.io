@@ -1,5 +1,6 @@
 const hobbies = [
-    "Learning new techs",
+    "Continuous Learning",
+    "movies and documentaries",
     "Board games/Puzzles",
     "Soccer"
 ]

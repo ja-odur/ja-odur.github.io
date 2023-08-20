@@ -72,7 +72,7 @@ function Roles({roles, nestedRoles, otherRoles}) {
                 {
                     otherRoles &&
                     <>
-                        Other responsibilities included;
+                        Furthermore, I undertook:
                         <ul>
                             {
                                 otherRoles.map((role, id) => {

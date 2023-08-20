@@ -42,14 +42,14 @@ const workExperienceData = [
         company: "AirQo, Kampala, Uganda",
         companyDescription: "AirQo is Africa's leading air quality monitoring, research and analytics network. AirQo uses low cost technologies and AI to close the gaps in air quality data across the continent with a goal to find data-driven solutions to air quality challenges.",
         jobTitle: "Software Engineer",
-        duration: "08/2020 - present",
+        duration: "Aug 2020 - present",
         roles: [
-            <p>Taking full ownership of <b>NetManager</b> platform. Platform for monitoring devices and visualising air quality data using heatmaps and charts</p>,
-            <p>Implemented platform <b>mobile responsiveness</b> to enable easy adoption of the platform by the hardware team</p>,
-            <p>Work closely with the Data Science team to <b>integrate heat-map/calibrate models</b> onto the NetManager platform.</p>,
-            <p>Training of <b>Airqocommunity champions</b>(selected locals) about air quality and how to use the available AirQo tools inorder to spread awareness.</p>,
-            <p>Improving on the <b>existing micro-service architecture</b>.</p>,
-            <p>Managing the implementation of <b>outsourced applications/tools</b> to external teams.</p>
+            <p>Assumed complete ownership of <b>NetManager</b> platform, facilitating device monitoring and air quality data visualization through heatmaps and charts.</p>,
+            <p>Enacted <b>mobile responsiveness</b> for the platform, simplifying its adoption by the hardware team.</p>,
+            <p>Collaborated closely with the Data Science team to <b>integrate heatmap and model calibration</b> features into the NetManager platform.</p>,
+            <p>Conducted training sessions for <b>selected local AirQommunity champions</b>, enabling them to utilize AirQo tools effectively for the purpose of raising awareness about air quality.</p>,
+            <p>Enhanced the <b>existing micro-service architecture</b>.</p>,
+            <p>Directed the implementation of <b>externally outsourced applications/tools</b> to external teams..</p>
         ],
         techStacks: [
             "Microservice-Architecture",
@@ -66,14 +66,14 @@ const workExperienceData = [
         company: "GitPrime/Pluralsight Flow, Farmington, USA",
         companyDescription: "GitPrime/Pluralsight Flow aggregates data from git repositories such as Github, BitBucket etc; ticketing systems such as Jira etc; cloud platforms (Azure, AWS etc), and Pull Requests and transforms them into easy to understand insights and reports. With visibility into the software development process.  This helps engineering organizations map initiatives to outcomes, adjust processes with confidence, and advocate for their teams with facts instead of feelings. The key functionalities included;",
         jobTitle: "Software Engineer (Contractor)",
-        duration: "08/2019 - 01/2020",
+        duration: "Aug 2019 - Feb 2020",
         roles: [
-            <p>Performed <b>Database and Query Optimization</b> i.e identifying slow query statements and optimizing or splitting them up to speed up the report generation process.</p>,
-            <p><b>Build Repository inspection interface</b>. This helps in verifying and replaying customer repository-related issues in order to understand the cause of the issue and implement possible fixes.</p>,
-            <p>Implemented <b>Partition-Based</b> query to improve the performance of API endpoints for customers with enormous data.</p>,
-            <p>Implemented <b>Deferred</b> and <b>Advanced</b> filtering in order to sort API data filtering/query parameters according to the complexity of the backend filtering logic.</p>,
-            <p>Consumed REST API endpoints to feed data into the different parts of the application.</p>,
-            <p>Involved in testing existing API endpoints</p>
+            <p>Conducted <b>Database and Query Optimization</b> by identifying and optimizing sluggish query statements, enhancing report generation speed.</p>,
+            <p>Developed a <b>Repository inspection interface</b> to validate and replicate customer repository-related concerns, aiding issue comprehension and resolution implementation.</p>,
+            <p>Implemented <b>Partition-Based</b> queries to enhance API endpoint performance for clients dealing with extensive data.</p>,
+            <p>Integrated <b>Deferred and Advanced filtering</b> to accommodate backend filtering logic complexities, facilitating efficient sorting of API data filtering/query parameters.</p>,
+            <p>Utilized REST API endpoints to supply data across various application components.</p>,
+            <p>Engaged in the testing of current API endpoints.</p>
         ],
         techStacks: [
             "Python/Django",
@@ -88,13 +88,13 @@ const workExperienceData = [
         company: "Andela, Kampala, Uganda",
         companyDescription: "Andela invests in Africa’s most talented software engineers to help companies solve the technical talent shortage and build high-performing distributed engineering teams.",
         jobTitle: "Software Engineer",
-        duration: "06/2018 - 04/2020",
+        duration: "Jun 2018 - Jun 2020",
         nestedRoles: [
             {
-                description: <p>Worked on an internal company product called <b>Activo</b>. This web app is helping the company to manage inventory and act as a single source of truth for information regarding the state of every company asset. Below are some of the functionalities I worked on;</p>,
+                description: <p>Contributed to the development of an in-house company solution named <b>Activo</b>, a web application pivotal in inventory management, serving as the definitive repository for company asset status information. Noteworthy contributions include:</p>,
                 roles: [
-                    <p>Implemented Role-Based Authentication to give users different level of privileges to the underlying resources.</p>,
-                    <p>Testing and documenting existing APIS using swagger.</p>,
+                    <p>Implemented Role-Based Authentication, affording diverse user access privileges to underlying resources.</p>,
+                    <p>Evaluated and documented APIs through the utilization of Swagger.</p>,
                     <p>Consumed REST API endpoints to feed data into the different parts of the application.</p>
                 ],
                 techStacks: [
@@ -108,7 +108,11 @@ const workExperienceData = [
                 ]
             },
             {
-                description: <p>Worked on <b>AndelaEats</b>, a web application that helps the company to manage catering services and employees to pre-order launch and breakfast as early as a day before. Some of the features I implemented include integrating the applications authentication system 	with the company's login system. Integrating NFC cards with the system such that users simply swipe the card and their order information is displayed to the caterers.</p>,
+                description: <p>Contributed to the development of <b>AndelaEats</b>, a web-based application designed to facilitate catering services management within the company. Additionally, enabled employees to conveniently pre-order lunches and breakfasts up to a day in advance. Key accomplishments encompassed:</p>,
+                roles: [
+                    <p>Seamless integration of the application's authentication system with the company's login mechanism.</p>,
+                    <p>Successful integration of NFC cards into the system, streamlining user interaction by allowing card swiping to instantly display order details for caterers</p>,
+                ],
                 techStacks: [
                     "Python/Flask",
                     "Postgres",
@@ -116,7 +120,7 @@ const workExperienceData = [
                 ]
             },
             {
-                description: <p>Worked on a blogging platform called <b>Authors Haven</b> - A creative platform where authors can create blogs and build a following of readers that comment, like, favourite, and share the blogs on social media platforms. My main role on this was <b>Technical Team Lead (TTL)</b>, leading and guiding a team of developers to ensure a delivery of a robust application while following the industry best standards.</p>,
+                description: <p>Contributed to the development of <b>Authors Haven</b>, a blogging platform that serves as a creative space for authors to craft blogs and cultivate a readership engaged in activities such as commenting, liking, favoriting, and sharing content across social media channels. My primary responsibility within this project was that of a <b>Technical Team Lead (TTL)</b>, overseeing a team of developers to ensure the creation of a resilient application in accordance with industry best practices.</p>,
                 techStacks: [
                     "Python/Django/Rest-Framework",
                     "React",
@@ -129,18 +133,18 @@ const workExperienceData = [
         company: "MTN Uganda LTD, Kampala, Uganda",
         companyDescription: "MTN Uganda is the largest telecommunications service provider in Uganda. The key features/ functionalities that I performed/implemented include;",
         jobTitle: "Software Engineer (Intern)",
-        duration: "06/2016 - 11/2017",
+        duration: "jun 2016 - Nov 2017",
         roles: [
-            <p>Designed and built a  <b>web-based monitoring</b> application that consolidated all data from all the  Watchdog monitoring devices from all the various data centres across East Africa in a single dashboard. This platform alerted responsible personnels incase the data centre conditions (Temperature, Humidity, Airflow etc) are beyond the set threshold values.</p>,
-            <p>Parsed and dumped XML data into MySQL database</p>,
-            <p>Visualised the dumped data using Chart.js to give trends into the data centres.</p>,
-            <p>Built the admin dashboard to facilitate the overall application management.</p>
+            <p>Devised and constructed a <b>web-based monitoring application</b>, harmonizing data from Watchdog monitoring devices situated across East African data centers into a unified dashboard. This platform proactively alerted relevant personnel in case conditions within the data centers, including temperature, humidity, and airflow, exceeded predetermined thresholds.</p>,
+            <p>Processed XML data and systematically stored it in a MySQL database.</p>,
+            <p>Employed Chart.js to visually represent the stored data, offering insights into data center trends.</p>,
+            <p>Built an administrative dashboard, streamlining the application's comprehensive management.</p>
         ],
         otherRoles: [
-            <p>Designed and built Value Added Service (VAS) applications.</p>,
-            <p>Carried out network optimisation activities such as drive tests within the “complaint” area and came up with quick solutions.</p>,
-            <p>Inspected fibre lines and accepted these fibre projects done by subcontractors within Kampala, inspection involved testing the fibre from one end, ensuring that are are no major losses within the transmission line, the physical appearance of the man-holes and did the final acceptance where necessary.</p>,
-            <p>Surveyed the Arua-Koboko route for the laying new fibre line. This involved measuring the actual fibre route and taking note of obstacles such as drainage systems and rocky grounds.</p>
+            <p>Creation of Value Added Service (VAS) applications.</p>,
+            <p>Execution of network optimization initiatives, which included conducting drive tests within areas flagged with concerns and promptly devising resolutions.</p>,
+            <p>Thoroughly inspected and accepted fiber projects executed by subcontractors within Kampala. This encompassed comprehensive testing, assessment of transmission line losses, physical evaluation of manholes, and ultimate acceptance if deemed satisfactory.</p>,
+            <p>Conducted a survey of the Arua-Koboko route to facilitate the installation of new fiber lines. This survey involved measuring the actual fiber route, identifying potential obstacles like drainage systems and rocky terrains, and documenting these details for reference.</p>
         ],
         techStacks: [
             "PHP",
