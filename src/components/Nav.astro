@@ -1,0 +1,169 @@
+---
+import { profile } from '~/data/profile';
+
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+
+const links = [
+  { href: '/projects', label: 'projects' },
+  { href: '/resume', label: 'resume' },
+];
+---
+
+<header class="site-nav" data-devnote="Nav.astro — zero-JS until you flip the switch">
+  <div class="container container--wide nav-inner">
+    <a class="brand mono" href="/" aria-label="Joseph Odur — home">
+      <span class="brand-prompt" aria-hidden="true">~/</span>odur
+    </a>
+
+    <nav aria-label="Main">
+      <ul class="nav-links mono">
+        {
+          links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={path === link.href ? 'page' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+        <li>
+          <a href={profile.github} target="_blank" rel="noreferrer">
+            github<span class="ext" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="mode-switch mono" role="group" aria-label="Audience">
+      <button type="button" data-mode="human" aria-pressed="true">human</button>
+      <button type="button" data-mode="machine" aria-pressed="false">
+        machine
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--nav-height);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-overlay);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 100%;
+  }
+
+  .brand {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .brand-prompt {
+    color: var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+  }
+
+  .nav-links a {
+    display: inline-block;
+    padding: 0.35rem 0.65rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    transition: color var(--speed) var(--ease),
+      background var(--speed) var(--ease);
+  }
+
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--accent-tint);
+  }
+
+  .nav-links a[aria-current='page'] {
+    color: var(--accent);
+  }
+
+  .ext {
+    margin-left: 0.2em;
+    font-size: 0.8em;
+  }
+
+  .mode-switch {
+    display: flex;
+    padding: 2px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    font-size: 0.75rem;
+  }
+
+  .mode-switch button {
+    padding: 0.15rem 0.7rem;
+    border-radius: 999px;
+    color: var(--text-faint);
+    transition: color var(--speed) var(--ease),
+      background var(--speed) var(--ease);
+  }
+
+  .mode-switch button[aria-pressed='true'] {
+    background: var(--bg-raised);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+
+  .mode-switch button:hover {
+    color: var(--accent);
+  }
+
+  @media (max-width: 640px) {
+    .nav-inner {
+      gap: 0.5rem;
+    }
+
+    .nav-links {
+      font-size: 0.8125rem;
+    }
+
+    .nav-links a {
+      padding: 0.35rem 0.4rem;
+    }
+
+    .brand {
+      font-size: 0.875rem;
+    }
+  }
+
+  @media (max-width: 460px) {
+    /* github lives in the footer too; drop it to keep the nav on one line */
+    .nav-links li:last-child {
+      display: none;
+    }
+
+    .mode-switch button {
+      padding-inline: 0.5rem;
+    }
+  }
+</style>

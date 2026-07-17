@@ -1,0 +1,125 @@
+---
+import '@fontsource-variable/inter';
+import '~/styles/global.css';
+import Nav from '~/components/Nav.astro';
+import Footer from '~/components/Footer.astro';
+import MachineMode from '~/components/MachineMode.astro';
+import Terminal from '~/components/Terminal.astro';
+import { profile } from '~/data/profile';
+
+interface Props {
+  title: string;
+  description: string;
+  /** extra JSON-LD blocks for this page */
+  jsonLd?: Record<string, unknown>[];
+  ogType?: 'website' | 'profile';
+}
+
+const { title, description, jsonLd = [], ogType = 'website' } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
+
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  '@id': `${profile.site}/#person`,
+  name: profile.name,
+  alternateName: profile.alias,
+  url: profile.site,
+  email: `mailto:${profile.email}`,
+  image: `${profile.site}/logo400.png`,
+  jobTitle: profile.title,
+  worksFor: {
+    '@type': 'Organization',
+    name: profile.company,
+    url: 'https://onafriq.com',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Kampala',
+    addressCountry: 'UG',
+  },
+  alumniOf: {
+    '@type': 'CollegeOrUniversity',
+    name: 'Makerere University',
+  },
+  sameAs: [profile.github],
+  knowsAbout: [
+    'Backend engineering',
+    'Payment systems',
+    'Distributed systems',
+    'API design',
+    'Python',
+    'Go',
+    'TypeScript',
+    'PostgreSQL',
+  ],
+};
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${profile.site}/#website`,
+  url: profile.site,
+  name: 'Joseph Odur',
+  description: profile.tagline,
+  publisher: { '@id': `${profile.site}/#person` },
+};
+
+const jsonLdBlocks = [personJsonLd, websiteJsonLd, ...jsonLd];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={profile.name} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0b0d10" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/logo200.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${profile.name} — ${profile.title}`} />
+    <meta property="og:site_name" content="Joseph Odur" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {
+      jsonLdBlocks.map((block) => (
+        <script is:inline type="application/ld+json" set:html={JSON.stringify(block)} />
+      ))
+    }
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <MachineMode />
+    <Terminal />
+    <script src="../scripts/enhance.ts"></script>
+  </body>
+</html>
