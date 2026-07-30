@@ -1,0 +1,182 @@
+---
+---
+
+<dialog class="terminal" id="terminal" aria-label="Site terminal">
+  <div class="term-chrome mono">
+    <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span>odur@web — zsh</span>
+    <span class="term-actions">
+      <span class="term-esc-hint" aria-hidden="true"><kbd>esc</kbd> exits fullscreen</span>
+      <button type="button" class="term-btn" id="terminal-max" aria-label="Enter fullscreen terminal">
+        ⤢
+      </button>
+      <button type="button" class="term-btn" id="terminal-close" aria-label="Close terminal">
+        ✕
+      </button>
+    </span>
+  </div>
+  <div class="term-body mono" id="terminal-body">
+    <div class="term-output" id="terminal-output" aria-live="polite"></div>
+    <form id="terminal-form" class="term-line">
+      <label class="term-prompt" for="terminal-input" aria-hidden="true">❯</label>
+      <input
+        id="terminal-input"
+        type="text"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        aria-label="Terminal command. Type help for available commands."
+        placeholder="type `help`"
+      />
+    </form>
+  </div>
+</dialog>
+
+<style>
+  .terminal {
+    width: min(92vw, 40rem);
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    color: var(--text-secondary);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  }
+
+  .terminal[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .terminal.full {
+    width: 100vw;
+    height: 100dvh;
+    max-width: 100vw;
+    max-height: 100dvh;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  .terminal.full .term-body {
+    height: auto;
+    flex: 1;
+  }
+
+  .terminal::backdrop {
+    background: rgba(5, 6, 8, 0.7);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+
+  .term-chrome {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+
+  .lights {
+    display: inline-flex;
+    gap: 6px;
+  }
+
+  .lights i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border-strong);
+  }
+
+  .term-actions {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .term-esc-hint {
+    display: none;
+    margin-right: 0.5rem;
+    color: var(--text-faint);
+  }
+
+  .terminal.full .term-esc-hint {
+    display: inline;
+  }
+
+  .term-btn {
+    color: var(--text-faint);
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .term-btn:hover {
+    color: var(--text);
+    background: var(--accent-tint);
+  }
+
+  .term-body {
+    height: min(50vh, 22rem);
+    display: flex;
+    flex-direction: column;
+    padding: 0.9rem;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+  }
+
+  .term-output {
+    flex: 1;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .term-output :global(.t-accent) {
+    color: var(--accent);
+  }
+
+  .term-output :global(.t-ok) {
+    color: var(--ok);
+  }
+
+  .term-output :global(.t-warn) {
+    color: var(--warn);
+  }
+
+  .term-output :global(.t-dim) {
+    color: var(--text-faint);
+  }
+
+  .term-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .term-prompt {
+    color: var(--accent);
+  }
+
+  .term-line input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text);
+    font: inherit;
+    caret-color: var(--accent);
+  }
+
+  .term-line input:focus {
+    outline: none;
+  }
+
+  .term-line input::placeholder {
+    color: var(--text-faint);
+  }
+</style>
