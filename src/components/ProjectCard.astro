@@ -1,0 +1,142 @@
+---
+import type { Project } from '~/data/projects';
+
+interface Props {
+  project: Project;
+  /** render the Dancing Links easter egg (projects page only) */
+  withEgg?: boolean;
+  /** keep the document heading order intact: h2 under a page h1, h3 under a section h2 */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { project, withEgg = false, headingLevel: Heading = 'h3' } = Astro.props;
+const showDlx = withEgg && project.egg === 'dlx';
+---
+
+<article class="project-card">
+  <header class="card-head">
+    <Heading class="card-title">
+      <a href={project.link} target="_blank" rel="noreferrer">
+        {project.name}<span class="ext" aria-hidden="true">↗</span>
+      </a>
+    </Heading>
+    {
+      showDlx && (
+        <button
+          type="button"
+          class="dlx"
+          id="dlx-egg"
+          aria-label="Solve the mini Sudoku (a nod to Algorithm X)"
+          title="click me"
+        >
+          {Array.from({ length: 9 }).map(() => (
+            <span class="dlx-cell" aria-hidden="true" />
+          ))}
+        </button>
+      )
+    }
+  </header>
+
+  <p class="card-tagline">{project.tagline}</p>
+  <p class="card-body">{project.problem}</p>
+  <p class="card-body">{project.build}</p>
+
+  <ul class="card-stack" aria-label="Technologies">
+    {project.stack.map((tech) => <li class="chip">{tech}</li>)}
+  </ul>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--bg-raised), transparent 120%);
+    transition: border-color var(--speed) var(--ease);
+  }
+
+  .project-card:hover {
+    border-color: var(--border-strong);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .card-head .card-title {
+    font-size: 1.0625rem;
+  }
+
+  .card-head a {
+    text-decoration: none;
+  }
+
+  .card-head a:hover {
+    color: var(--accent);
+  }
+
+  .ext {
+    margin-left: 0.3em;
+    font-size: 0.75em;
+    color: var(--text-faint);
+  }
+
+  .card-tagline {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--accent);
+  }
+
+  .card-body {
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+  }
+
+  .card-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding: 0.5rem 0 0;
+    list-style: none;
+  }
+
+  /* dancing-links mini sudoku */
+  .dlx {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  .dlx:hover {
+    border-color: var(--accent-dim);
+  }
+
+  .dlx-cell {
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text-faint);
+    transition: color var(--speed) var(--ease), background var(--speed) var(--ease);
+  }
+
+  .dlx-cell.solved {
+    color: var(--accent);
+    background: var(--accent-tint);
+  }
+</style>
