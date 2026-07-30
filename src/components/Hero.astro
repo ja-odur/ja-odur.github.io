@@ -1,0 +1,286 @@
+---
+import { profile, yearsOfExperience } from '~/data/profile';
+
+const years = yearsOfExperience();
+---
+
+<section class="hero" data-devnote="Hero.astro — static HTML, the typing is progressive enhancement">
+  <div class="container hero-inner">
+    <p class="hero-kicker mono reveal" style="--reveal-delay: 0ms">
+      <span class="status-dot" aria-hidden="true"></span>
+      {profile.title.toLowerCase()} @ {profile.company} · {profile.location} · {profile.timezone}
+    </p>
+
+    <h1 class="hero-title reveal" style="--reveal-delay: 80ms">
+      <span class="hero-line">Hello <span class="wave" aria-hidden="true">👋</span>,</span>
+      <span class="hero-line">
+        I'm <span class="hero-name" id="hero-name">Joseph Odur.</span><span
+          class="hero-caret"
+          id="hero-caret"
+          aria-hidden="true"></span>
+      </span>
+    </h1>
+
+    <p class="hero-lede reveal" style="--reveal-delay: 160ms">
+      I've spent {years} years building the server side of things — payment
+      infrastructure, public APIs, and distributed systems that stay boring
+      under pressure. Currently leading backend delivery for Beyonic at
+      Onafriq, connecting payments across Africa.
+    </p>
+
+    <div class="hero-cta reveal" style="--reveal-delay: 240ms">
+      <a class="btn btn--primary" href="/projects">View projects</a>
+      <a class="btn" href="/resume">Resume</a>
+      <a class="hero-gh mono" href={profile.github} target="_blank" rel="noreferrer">
+        github.com/{profile.githubHandle} <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <a class="scroll-cue mono" href="#about" id="scroll-cue">
+    <span aria-hidden="true">↓</span> scroll
+  </a>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* fill the viewport, minus the nav and a small peek of the next section */
+    min-height: calc(100dvh - var(--nav-height) - 3.25rem);
+    padding-block: 3rem;
+    /* subtle dot field, brightened around the pointer via --glow-x/y */
+    background-image: radial-gradient(
+        24rem 24rem at var(--glow-x, 50%) var(--glow-y, 20%),
+        var(--hero-glow),
+        transparent 70%
+      ),
+      radial-gradient(var(--hero-dot) 1px, transparent 1px);
+    background-size: 100% 100%, 28px 28px;
+  }
+
+  .hero-inner {
+    width: 100%;
+  }
+
+  .hero-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+    flex-shrink: 0;
+  }
+
+  .hero-title {
+    margin-top: 1.25rem;
+    font-size: clamp(2.25rem, 6vw, 3.5rem);
+    font-weight: 650;
+  }
+
+  /* each part on its own line so retyping the name never reflows the rest */
+  .hero-line {
+    display: block;
+  }
+
+  .hero-name {
+    color: var(--accent);
+  }
+
+  /* the typing cursor — always present, blinks while idle, steady while typing */
+  .hero-caret {
+    display: inline-block;
+    width: 0.09em;
+    height: 0.85em;
+    margin-left: 0.06em;
+    background: var(--accent);
+    transform: translateY(0.08em);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-caret {
+      animation: caret-blink 1.1s steps(1) infinite;
+    }
+
+    .hero-caret.typing {
+      animation: none;
+      opacity: 1;
+    }
+
+    @keyframes caret-blink {
+      50% {
+        opacity: 0;
+      }
+    }
+  }
+
+  .wave {
+    display: inline-block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .wave {
+      transform-origin: 70% 70%;
+      animation: wave 1.8s var(--ease) 0.9s 1;
+    }
+
+    @keyframes wave {
+      0%, 100% { transform: rotate(0); }
+      20%, 60% { transform: rotate(16deg); }
+      40%, 80% { transform: rotate(-8deg); }
+    }
+  }
+
+  .hero-lede {
+    margin-top: 1.5rem;
+    max-width: 36rem;
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+  }
+
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 2.25rem;
+  }
+
+  .hero-gh {
+    margin-left: 0.25rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .hero-gh:hover {
+    color: var(--accent);
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    text-decoration: none;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    transition: color var(--speed) var(--ease), opacity 0.4s var(--ease);
+  }
+
+  .scroll-cue:hover {
+    color: var(--accent);
+  }
+
+  .scroll-cue.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  // Pointer-following glow (desktop, fine pointers only).
+  const hero = document.querySelector<HTMLElement>('.hero');
+  if (
+    hero &&
+    matchMedia('(pointer: fine)').matches &&
+    matchMedia('(prefers-reduced-motion: no-preference)').matches
+  ) {
+    hero.addEventListener('pointermove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      hero.style.setProperty('--glow-x', `${e.clientX - rect.left}px`);
+      hero.style.setProperty('--glow-y', `${e.clientY - rect.top}px`);
+    });
+  }
+
+  // Fade the scroll cue once the visitor starts moving.
+  const cue = document.getElementById('scroll-cue');
+  if (cue) {
+    window.addEventListener(
+      'scroll',
+      () => cue.classList.toggle('hidden', window.scrollY > 40),
+      { passive: true }
+    );
+  }
+
+  // The identity riff: Joseph Odur → ja-odur → J. A. Odur — typed like a
+  // human, occasional slip included. Static text is already in the HTML;
+  // this only enhances.
+  const nameEl = document.getElementById('hero-name');
+  const caret = document.getElementById('hero-caret');
+  if (nameEl && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+    type Step = { type: string } | { del: number } | { wait: number };
+
+    // each sequence rewrites the name; a couple include a typo + correction
+    const sequences: { steps: Step[]; dwell: number }[] = [
+      {
+        steps: [{ type: 'ja-odru' }, { wait: 500 }, { del: 2 }, { type: 'ur.' }],
+        dwell: 4200,
+      },
+      {
+        steps: [{ type: 'J. A. Odur.' }],
+        dwell: 4200,
+      },
+      {
+        steps: [
+          { type: 'Joseph Odu' },
+          { type: 'e' },
+          { wait: 500 },
+          { del: 1 },
+          { type: 'r.' },
+        ],
+        dwell: 7000,
+      },
+    ];
+
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    const jitter = (base: number) => base + Math.random() * 60;
+
+    // steady cursor while keys are being pressed, blinking while "thinking"
+    const setTyping = (on: boolean) => caret?.classList.toggle('typing', on);
+
+    async function typeChars(text: string): Promise<void> {
+      setTyping(true);
+      for (const char of text) {
+        nameEl!.textContent += char;
+        await sleep(jitter(95));
+      }
+      setTyping(false);
+    }
+
+    async function deleteChars(count: number): Promise<void> {
+      setTyping(true);
+      for (let i = 0; i < count; i++) {
+        nameEl!.textContent = (nameEl!.textContent ?? '').slice(0, -1);
+        await sleep(jitter(42));
+      }
+      setTyping(false);
+    }
+
+    (async () => {
+      await sleep(3200);
+      for (let i = 0; ; i = (i + 1) % sequences.length) {
+        const { steps, dwell } = sequences[i]!;
+        await deleteChars((nameEl!.textContent ?? '').length);
+        await sleep(260);
+        for (const step of steps) {
+          if ('type' in step) await typeChars(step.type);
+          else if ('del' in step) await deleteChars(step.del);
+          else await sleep(step.wait);
+        }
+        await sleep(dwell);
+      }
+    })();
+  }
+</script>
