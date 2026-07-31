@@ -1,0 +1,68 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import ProjectCard from '~/components/ProjectCard.astro';
+import { projects } from '~/data/projects';
+import { profile } from '~/data/profile';
+
+const title = 'Projects — Joseph Odur';
+const description =
+  'Side projects by Joseph Odur: a Sudoku-solving puzzle platform, an online code-execution sandbox, Python packages, and more.';
+
+const itemListJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Projects by Joseph Odur',
+  itemListElement: projects.map((project, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'SoftwareSourceCode',
+      name: project.name,
+      description: project.tagline,
+      codeRepository: project.link,
+      programmingLanguage: project.stack[0],
+      author: { '@id': `${profile.site}/#person` },
+    },
+  })),
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={[itemListJsonLd]}>
+  <div class="container container--wide">
+    <header class="page-head" data-devnote="projects/index — data-driven from src/data/projects.ts">
+      <p class="kicker">~/odur/projects</p>
+      <h1>Projects</h1>
+      <p class="page-lede">
+        Things I've built outside work — each one started as a problem I wanted
+        to understand properly. The Sudoku one has a secret; the grid knows.
+      </p>
+    </header>
+
+    <div class="project-grid">
+      {projects.map((project) => <ProjectCard project={project} withEgg headingLevel="h2" />)}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding-block: clamp(3rem, 9vh, 5.5rem) 2.5rem;
+  }
+
+  .page-head h1 {
+    margin-top: 0.75rem;
+    font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+  }
+
+  .page-lede {
+    margin-top: 1rem;
+    max-width: 34rem;
+    color: var(--text-secondary);
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 1.25rem;
+  }
+</style>
