@@ -37,7 +37,37 @@
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   --speed: 200ms;
 
+  /* hero background */
+  --hero-dot: rgba(230, 237, 243, 0.055);
+  --hero-glow: rgba(76, 201, 224, 0.07);
+
   color-scheme: dark;
+}
+
+/* Light theme — unlocked via the terminal (`theme light`) */
+:root[data-theme='light'] {
+  --bg: #fafbfc;
+  --bg-raised: #ffffff;
+  --bg-overlay: rgba(250, 251, 252, 0.85);
+  --border: #e3e8ee;
+  --border-strong: #c6d0da;
+  --text: #14181c;
+  --text-secondary: #414e5a;
+  --text-faint: #5f6c78;
+  --accent: #0d7f96;
+  --accent-strong: #0a6478;
+  --accent-dim: rgba(13, 127, 150, 0.4);
+  --accent-tint: rgba(13, 127, 150, 0.07);
+  --ok: #15803d;
+  --warn: #b45309;
+  --hero-dot: rgba(20, 24, 28, 0.08);
+  --hero-glow: rgba(13, 127, 150, 0.07);
+
+  color-scheme: light;
+}
+
+:root[data-theme='light'] .btn--primary:hover {
+  color: #ffffff;
 }
 
 /* Blueprint theme — unlocked via the terminal (`theme blueprint`) */
@@ -299,6 +329,21 @@ kbd {
       opacity: 1;
       transform: none;
     }
+  }
+
+  /* reveal-on-scroll — gated behind html.js so content is never hidden
+     for visitors without JavaScript */
+  html.js .scroll-reveal {
+    opacity: 0;
+    transform: translateY(1.25rem);
+    transition:
+      opacity 0.6s var(--ease),
+      transform 0.6s var(--ease);
+  }
+
+  html.js .scroll-reveal.in-view {
+    opacity: 1;
+    transform: none;
   }
 }
 
