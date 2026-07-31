@@ -77,6 +77,20 @@ const jsonLdBlocks = [personJsonLd, websiteJsonLd, ...jsonLd];
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
+    <!-- runs before first paint: mark JS availability, restore the session
+         theme across page navigations, reset it on a full reload -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      try {
+        var nav = performance.getEntriesByType('navigation')[0];
+        if (nav && nav.type === 'reload') sessionStorage.removeItem('theme');
+        var theme = sessionStorage.getItem('theme');
+        if (theme) document.documentElement.dataset.theme = theme;
+      } catch (e) {
+        /* storage unavailable — default theme */
+      }
+    </script>
+
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="author" content={profile.name} />
