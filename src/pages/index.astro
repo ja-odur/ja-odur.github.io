@@ -1,0 +1,176 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Hero from '~/components/Hero.astro';
+import ProjectCard from '~/components/ProjectCard.astro';
+import { profile } from '~/data/profile';
+import { experience } from '~/data/experience';
+import { featuredProjects } from '~/data/projects';
+
+const highlights = experience.filter((job) => job.highlight).slice(0, 3);
+
+const title = 'Joseph Odur — Senior Software Engineer';
+const description =
+  'Senior software engineer in Kampala building payment infrastructure at Onafriq. Backend specialist: APIs, distributed systems, and databases that behave.';
+---
+
+<BaseLayout title={title} description={description} ogType="profile">
+  <Hero />
+
+  <section class="section container scroll-reveal" data-devnote="about — two paragraphs, no adjectives doing heavy lifting">
+    <div class="section-head">
+      <h2 id="about">About</h2>
+    </div>
+    {profile.summary.map((para) => <p class="about-para">{para}</p>)}
+    <ul class="focus-list" aria-label="Focus areas">
+      {profile.focus.map((item) => <li class="chip">{item}</li>)}
+    </ul>
+  </section>
+
+  <section class="section container scroll-reveal" data-devnote="experience highlights — full history lives at /resume">
+    <div class="section-head">
+      <h2 id="work">Selected work</h2>
+    </div>
+    <ol class="work-list">
+      {
+        highlights.map((job) => (
+          <li class="work-item">
+            <div class="work-meta mono">
+              <span>{job.period}</span>
+            </div>
+            <div class="work-body">
+              <h3>{job.company}</h3>
+              <p>{job.highlight}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="section-more">
+      <a href="/resume">Full experience & resume →</a>
+    </p>
+  </section>
+
+  <section class="section container container--wide scroll-reveal" data-devnote="projects — problem first, stack last">
+    <div class="section-head">
+      <h2 id="projects">Selected projects</h2>
+    </div>
+    <div class="project-grid">
+      {featuredProjects.map((project) => <ProjectCard project={project} />)}
+    </div>
+    <p class="section-more">
+      <a href="/projects">All projects →</a>
+    </p>
+  </section>
+
+  <section class="section container scroll-reveal" data-devnote="contact — one CTA is enough">
+    <div class="section-head">
+      <h2 id="contact">Contact</h2>
+    </div>
+    <p class="contact-lede">
+      The fastest way to reach me is email. I'm always happy to talk about
+      backend architecture, payments, or a Sudoku puzzle you think can't be solved.
+    </p>
+    <div class="contact-cta">
+      <a class="btn btn--primary" href={`mailto:${profile.email}`}>
+        {profile.email}
+      </a>
+      <span class="mono contact-alt">
+        or <a href={profile.github} target="_blank" rel="noreferrer">github.com/{profile.githubHandle}</a>
+      </span>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-para {
+    color: var(--text-secondary);
+  }
+
+  .about-para + .about-para {
+    margin-top: 1rem;
+  }
+
+  .focus-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.5rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .work-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .work-item {
+    display: grid;
+    grid-template-columns: 10rem 1fr;
+    gap: 1rem;
+  }
+
+  .work-meta {
+    font-size: 0.8125rem;
+    color: var(--text-faint);
+    padding-top: 0.2rem;
+  }
+
+  .work-body h3 {
+    font-size: 1.0625rem;
+  }
+
+  .work-body p {
+    margin-top: 0.35rem;
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 560px) {
+    .work-item {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 1.25rem;
+  }
+
+  .section-more {
+    margin-top: 1.75rem;
+    font-size: 0.9375rem;
+  }
+
+  .section-more a {
+    color: var(--text-secondary);
+  }
+
+  .section-more a:hover {
+    color: var(--accent);
+  }
+
+  .contact-lede {
+    max-width: 34rem;
+    color: var(--text-secondary);
+  }
+
+  .contact-cta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.75rem;
+  }
+
+  .contact-alt {
+    font-size: 0.8125rem;
+    color: var(--text-faint);
+  }
+</style>
