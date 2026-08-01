@@ -1,0 +1,338 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { profile, yearsOfExperience } from '~/data/profile';
+import { experience } from '~/data/experience';
+import { skills, education, interests } from '~/data/skills';
+
+const years = yearsOfExperience();
+
+const title = 'Resume — Joseph Odur';
+const description = `Resume of Joseph Odur: senior software engineer with ${years} years of experience in payments, APIs, and distributed systems. Onafriq, AirQo, Pluralsight Flow, Andela.`;
+
+const profilePageJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: { '@id': `${profile.site}/#person` },
+  name: title,
+  description,
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={[profilePageJsonLd]} ogType="profile">
+  <div class="container container--wide resume">
+    <header class="resume-head" data-devnote="resume — print this page for the PDF; CSS does the rest">
+      <div>
+        <p class="kicker">~/odur/resume</p>
+        <h1>{profile.name}</h1>
+        <p class="resume-role">{profile.title} · {profile.location}</p>
+      </div>
+      <div class="resume-actions no-print">
+        <button type="button" class="btn" id="print-resume">Print / save PDF</button>
+      </div>
+      <ul class="resume-contact mono" aria-label="Contact">
+        <li><a href={`mailto:${profile.email}`}>{profile.email}</a></li>
+        <li><a href={profile.github} target="_blank" rel="noreferrer">github.com/{profile.githubHandle}</a></li>
+        <li><a href={profile.site}>odurjoseph.com</a></li>
+      </ul>
+    </header>
+
+    <p class="resume-summary">
+      Senior software engineer with {years} years of experience, specialized in
+      backend systems: payment infrastructure, REST and GraphQL APIs,
+      microservices, and the databases underneath them. Comfortable owning a
+      platform end to end — design, delivery, performance, and the people
+      questions in between.
+    </p>
+
+    <div class="resume-grid">
+      <section class="resume-main" aria-labelledby="experience-h">
+        <h2 id="experience-h" class="resume-section-title">Experience</h2>
+        {
+          experience.map((job) => (
+            <article class="job">
+              <header class="job-head">
+                <h3>{job.company}</h3>
+                <span class="job-period mono">{job.period}</span>
+              </header>
+              <p class="job-summary">{job.summary}</p>
+              {job.roles.map((role) => (
+                <div class="role">
+                  <div class="role-head">
+                    <h4>{role.title}</h4>
+                    {job.roles.length > 1 && (
+                      <span class="role-period mono">{role.period}</span>
+                    )}
+                  </div>
+                  <ul class="role-bullets">
+                    {role.bullets.map((bullet) => (
+                      <li>{bullet}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+              <ul class="job-stack" aria-label="Tech stack">
+                {job.stack.map((tech) => (
+                  <li class="chip">{tech}</li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
+      </section>
+
+      <aside class="resume-side">
+        <section aria-labelledby="skills-h">
+          <h2 id="skills-h" class="resume-section-title">Skills</h2>
+          {
+            skills.map((group) => (
+              <div class="skill-group">
+                <h3 class="skill-label mono">{group.label.toLowerCase()}</h3>
+                <p class="skill-items">{group.items.join(' · ')}</p>
+              </div>
+            ))
+          }
+        </section>
+
+        <section aria-labelledby="education-h">
+          <h2 id="education-h" class="resume-section-title">Education</h2>
+          {
+            education.map((entry) => (
+              <div class="edu">
+                <h3>{entry.institution}</h3>
+                <p>{entry.course}</p>
+                <p class="mono edu-period">{entry.period}</p>
+              </div>
+            ))
+          }
+        </section>
+
+        <section aria-labelledby="interests-h">
+          <h2 id="interests-h" class="resume-section-title">Interests</h2>
+          <ul class="interest-list">
+            {interests.map((interest) => <li>{interest}</li>)}
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .resume {
+    padding-top: clamp(3rem, 9vh, 5.5rem);
+  }
+
+  .resume-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: start;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .resume-head h1 {
+    margin-top: 0.75rem;
+    font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+  }
+
+  .resume-role {
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+  }
+
+  .resume-contact {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8125rem;
+  }
+
+  .resume-contact a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .resume-contact a:hover {
+    color: var(--accent);
+  }
+
+  .resume-summary {
+    margin-top: 1.75rem;
+    max-width: 44rem;
+    color: var(--text-secondary);
+  }
+
+  .resume-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) minmax(14rem, 1fr);
+    gap: 3rem;
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 760px) {
+    .resume-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .resume-section-title {
+    font-size: 0.8125rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+  }
+
+  .job {
+    margin-bottom: 2.5rem;
+    break-inside: avoid-page;
+  }
+
+  .job-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .job-head h3 {
+    font-size: 1.125rem;
+  }
+
+  .job-period,
+  .role-period {
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    white-space: nowrap;
+  }
+
+  .job-summary {
+    margin-top: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--text-faint);
+  }
+
+  .role {
+    margin-top: 1.1rem;
+  }
+
+  .role-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .role-head h4 {
+    font-size: 0.9375rem;
+    color: var(--text);
+  }
+
+  .role-bullets {
+    margin: 0.6rem 0 0;
+    padding-left: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    font-size: 0.9375rem;
+    color: var(--text-secondary);
+  }
+
+  .role-bullets li::marker {
+    color: var(--accent-dim);
+  }
+
+  .job-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .resume-side {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .skill-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .skill-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-faint);
+    letter-spacing: 0.06em;
+  }
+
+  .skill-items {
+    margin-top: 0.3rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .edu {
+    margin-bottom: 1.25rem;
+  }
+
+  .edu h3 {
+    font-size: 0.9375rem;
+  }
+
+  .edu p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .edu-period {
+    font-size: 0.75rem;
+    color: var(--text-faint);
+  }
+
+  .interest-list {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .interest-list li::marker {
+    color: var(--accent-dim);
+  }
+
+  @media print {
+    .resume {
+      padding-top: 0;
+    }
+
+    .resume-grid {
+      gap: 2rem;
+    }
+
+    .chip {
+      border-color: var(--border-strong);
+    }
+  }
+</style>
+
+<script>
+  document
+    .getElementById('print-resume')
+    ?.addEventListener('click', () => window.print());
+</script>
