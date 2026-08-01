@@ -1,0 +1,58 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="404 — Joseph Odur"
+  description="This page does not exist. The route was not found."
+>
+  <div class="container notfound">
+    <pre class="mono notfound-term" aria-hidden="true">
+❯ GET {'{'}requested_page{'}'}
+<span class="err">404</span> route not found
+
+❯ suggestions:
+  cd /            <span class="dim"># home</span>
+  cd /projects    <span class="dim"># things I've built</span>
+  cd /resume      <span class="dim"># the professional bits</span></pre>
+    <h1>Page not found</h1>
+    <p>Nothing lives at this address. It may have moved, or it never existed — an off-by-one in the URL, perhaps.</p>
+    <a class="btn btn--primary" href="/">Back home</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .notfound {
+    padding-block: clamp(4rem, 14vh, 8rem);
+  }
+
+  .notfound-term {
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-raised);
+    font-size: 0.8125rem;
+    line-height: 1.9;
+    color: var(--text-secondary);
+    overflow-x: auto;
+  }
+
+  .err {
+    color: var(--warn);
+  }
+
+  .dim {
+    color: var(--text-faint);
+  }
+
+  .notfound h1 {
+    font-size: 1.5rem;
+  }
+
+  .notfound p {
+    margin: 0.75rem 0 1.75rem;
+    max-width: 32rem;
+    color: var(--text-secondary);
+  }
+</style>
