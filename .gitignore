@@ -22,3 +22,6 @@ pnpm-debug.log*
 # IDE
 .idea/
 .vscode/
+
+# Claude Code — machine-local permissions, not shared
+.claude/settings.local.json
