@@ -17,7 +17,13 @@ interface Props {
 
 const { title, description, jsonLd = [], ogType = 'website' } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname.replace(/\.html$/, ''), Astro.site);
+// Under build.format: 'file', Astro 7 reports the homepage pathname as
+// `/index` where Astro 5 gave `/`. Strip the extension AND a trailing `index`,
+// or the homepage canonical/og:url points at /index instead of the bare domain.
+const canonical = new URL(
+  Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/'),
+  Astro.site
+);
 const ogImage = new URL('/og.png', Astro.site);
 
 const personJsonLd = {

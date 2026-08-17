@@ -74,6 +74,14 @@ Read these before touching the relevant area — each one cost real debugging.
 - **`format: 'file'` + `trailingSlash: 'never'`** (astro.config.mjs). Builds
   `/projects` → `dist/projects.html` so GitHub Pages serves extensionless URLs.
   Canonicals and the sitemap strip `.html`; keep that invariant if you add pages.
+- **The homepage pathname is `/index`, not `/`.** With `format: 'file'`, Astro 7
+  reports `Astro.url.pathname` as `/index` for the index route (Astro 5 gave
+  `/`). BaseLayout's canonical (and `og:url`) and Nav's active-link check both
+  strip a trailing `index` — without that the homepage canonicalises to
+  `/index`. Normalise pathnames in any new consumer.
+- **`compressHTML: true` is pinned deliberately.** Astro 7 defaults it to
+  `'jsx'`, which strips whitespace between inline elements — that ate real
+  spaces in the nav and hero. Don't drop it to take the new default.
 - **JSON-LD needs `is:inline`** on its `<script type="application/ld+json">` in
   BaseLayout, or Astro tries to process it as a module. Same for the theme
   bootstrap script in `<head>`.

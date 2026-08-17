@@ -1,7 +1,12 @@
 ---
 import { profile } from '~/data/profile';
 
-const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+// `/index` normalisation: see the canonical note in BaseLayout.astro.
+const path =
+  Astro.url.pathname
+    .replace(/\.html$/, '')
+    .replace(/\/index$/, '/')
+    .replace(/\/$/, '') || '/';
 
 const links = [
   { href: '/projects', label: 'projects' },
