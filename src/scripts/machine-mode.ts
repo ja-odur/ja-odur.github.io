@@ -127,7 +127,9 @@ function sanitize(root: HTMLElement): void {
 function tokenizeTree(root: HTMLElement): HTMLElement[] {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: (node) =>
-      !node.nodeValue?.trim() || SKIP.has(node.parentElement?.tagName.toUpperCase() ?? '')
+      !node.nodeValue?.trim() ||
+      SKIP.has(node.parentElement?.tagName.toUpperCase() ?? '') ||
+      node.parentElement?.closest('.mk-t') // already a token (live surfaces re-scan)
         ? NodeFilter.FILTER_REJECT
         : NodeFilter.FILTER_ACCEPT,
   });
@@ -170,6 +172,7 @@ function fit(tokens: HTMLElement[]): void {
   });
   tokens.forEach((tok, i) => {
     const [w, em] = measured[i]!;
+    if (!w) return; // not laid out (a closed dialog); fitted when it opens
     const chars = tok.dataset.id!.length;
     // mono digits are ~0.6em wide; allow condensing to 80% before shrinking
     const size = Math.min(em * 0.62, Math.max(6, w / (chars * 0.6 * 0.8)));
@@ -301,6 +304,66 @@ function flush(): void {
   updateCount();
 }
 
+/* --------------------- live surfaces: terminal, toasts -------------------- */
+
+/**
+ * Text outside the page blocks can't flip: the terminal is a modal dialog
+ * and toasts (the jokes) come and go. While machine mode is on, their text
+ * is tokenized in place instead. Token styling on `.mk-live` is scoped to
+ * body.machine-active in global.css, so the same spans read as plain text
+ * once you're back in human mode. The terminal's input stays plain on
+ * purpose — that's the human typing to the machine; the echoed command in
+ * the output is tokenized like everything else it prints.
+ */
+const terminal = {
+  dialog: $('#terminal'),
+  output: $('#terminal-output'),
+};
+let machineOn = false;
+
+function tokenizeLive(root: HTMLElement): void {
+  root.classList.add('mk-live');
+  const made = tokenizeTree(root);
+  if (made.length) fit(made);
+}
+
+function tokenizeLiveSurfaces(): void {
+  if (terminal.output) tokenizeLive(terminal.output);
+  document.querySelectorAll<HTMLElement>('.toast').forEach(tokenizeLive);
+}
+
+function watchLiveSurfaces(): void {
+  const observer = new MutationObserver((records) => {
+    if (!machineOn) return;
+    for (const rec of records) {
+      if (rec.type === 'attributes') {
+        // the dialog just opened: lines tokenized while it was closed had no
+        // layout to fit against
+        if (terminal.dialog?.hasAttribute('open') && terminal.output) {
+          tokenizeLive(terminal.output);
+          fit([...terminal.output.querySelectorAll<HTMLElement>('.mk-t')]);
+        }
+        continue;
+      }
+      for (const node of rec.addedNodes) {
+        if (!(node instanceof HTMLElement)) continue;
+        if (node.classList.contains('toast')) tokenizeLive(node);
+        else if (terminal.output?.contains(node)) tokenizeLive(terminal.output);
+      }
+      if (rec.type === 'characterData' && terminal.output?.contains(rec.target)) {
+        tokenizeLive(terminal.output);
+      }
+    }
+  });
+  observer.observe(document.body, { childList: true });
+  if (terminal.output) {
+    observer.observe(terminal.output, { childList: true, subtree: true, characterData: true });
+  }
+  if (terminal.dialog) {
+    observer.observe(terminal.dialog, { attributes: true, attributeFilter: ['open'] });
+  }
+}
+
 /* --------------------------------- flip ----------------------------------- */
 
 const ui = {
@@ -334,7 +397,11 @@ export function setAudience(mode: Audience, animate = true): void {
   } catch {
     /* private mode — fine */
   }
-  if (active) build();
+  machineOn = active;
+  if (active) {
+    build();
+    tokenizeLiveSurfaces();
+  }
   if (!backs) return;
 
   aimRotation();
@@ -355,6 +422,7 @@ export function setAudience(mode: Audience, animate = true): void {
 }
 
 export function initMachineMode(toast: (html: string, ms?: number) => void): void {
+  watchLiveSurfaces();
   for (const btn of ui.buttons) {
     btn.addEventListener('click', () => setAudience(btn.dataset.mode as Audience));
   }

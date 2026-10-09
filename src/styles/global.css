@@ -428,29 +428,38 @@ body.machine-active {
   padding-bottom: 3rem;
 }
 
-/* a token: its word stays (hidden) for layout, its ID is drawn on top */
+/* a token: its word stays (invisible) for layout, its ID is drawn on top.
+   Back faces always show tokens; live surfaces (terminal output, toasts) are
+   tokenized in place and only look like tokens while machine mode is on.
+   The hidden word uses visibility on back faces (opacity: 0 there showed
+   through the terminal's backdrop-filter in Chrome) and opacity on live
+   surfaces, so screen readers still get the terminal's text. */
 .mk-t {
   position: relative;
   border-radius: 2px;
 }
 
-.mk-t0 {
+:is(.mk-back, body.machine-active .mk-live) .mk-t0 {
   background: rgba(76, 201, 224, 0.13);
 }
 
-.mk-t1 {
+:is(.mk-back, body.machine-active .mk-live) .mk-t1 {
   background: rgba(251, 191, 36, 0.1);
 }
 
-.mk-t2 {
+:is(.mk-back, body.machine-active .mk-live) .mk-t2 {
   background: rgba(163, 177, 189, 0.1);
 }
 
-.mk-x {
+.mk-back .mk-x {
   visibility: hidden;
 }
 
-.mk-t::after {
+body.machine-active .mk-live .mk-x {
+  opacity: 0;
+}
+
+:is(.mk-back, body.machine-active .mk-live) .mk-t::after {
   content: attr(data-id);
   position: absolute;
   left: 50%;
@@ -466,20 +475,24 @@ body.machine-active {
   pointer-events: none;
 }
 
-.mk-t--tiny::after {
+:is(.mk-back, body.machine-active .mk-live) .mk-t--tiny::after {
   content: '';
 }
 
-.mk-t:hover {
+:is(.mk-back, body.machine-active .mk-live) .mk-t:hover {
   background: var(--accent-tint);
   outline: 1px solid var(--accent-dim);
 }
 
-.mk-t:hover > .mk-x {
+.mk-back .mk-t:hover > .mk-x {
   visibility: visible;
 }
 
-.mk-t:hover::after {
+body.machine-active .mk-live .mk-t:hover > .mk-x {
+  opacity: 1;
+}
+
+:is(.mk-back, body.machine-active .mk-live) .mk-t:hover::after {
   content: '';
 }
 

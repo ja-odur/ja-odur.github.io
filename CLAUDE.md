@@ -150,6 +150,15 @@ gotchas that cost debugging time:
   `audience` is `machine`; CSS hides `#main` + footer (and pre-selects the nav
   switch) until `setAudience()` removes it. A 2.5s CSS unhide is the safety
   net if the script never runs — keep it.
+- **Terminal output and toasts (jokes) are tokenized in place,** not flipped —
+  the terminal is a modal dialog, toasts are transient. Their token styling is
+  scoped to `body.machine-active .mk-live`, so the same spans read as plain
+  text in human mode. The terminal input stays plain on purpose (the human
+  side of the conversation).
+- **Back-face words hide with `visibility`, live ones with `opacity`.** Under
+  the terminal's `backdrop-filter`, Chrome painted `opacity: 0` back-face
+  words anyway; `opacity` stays on live surfaces so screen readers keep the
+  terminal text.
 - **The tokenizer is illustrative** (hash IDs into a cl100k-sized vocabulary),
   deterministic per string. Backs are built client-side on first flip only —
   crawlers never see them; `/llms.txt` stays the real machine document.
