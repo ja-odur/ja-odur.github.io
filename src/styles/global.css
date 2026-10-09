@@ -108,8 +108,9 @@
 
 html {
   scroll-behavior: smooth;
-  /* machine mode locks body scroll; without a reserved gutter the scrollbar
-     vanishes and the centered nav shifts sideways on every toggle */
+  /* keep the scrollbar's space reserved even when the page can't scroll, so
+     anything that locks body scroll never shifts the centered layout
+     sideways (the old machine-mode overlay did, nudging the nav ~7px) */
   scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
 }
