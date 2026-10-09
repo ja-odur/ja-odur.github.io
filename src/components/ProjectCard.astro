@@ -11,6 +11,9 @@ interface Props {
 
 const { project, withEgg = false, headingLevel: Heading = 'h3' } = Astro.props;
 const showDlx = withEgg && project.egg === 'dlx';
+// a few given digits so the grid reads as a Sudoku, not an empty box;
+// must agree with `solution` in initDlxEgg (enhance.ts)
+const dlxGivens = ['5', '', '', '', '7', '', '', '', '2'];
 ---
 
 <article class="project-card">
@@ -29,8 +32,8 @@ const showDlx = withEgg && project.egg === 'dlx';
           aria-label="Solve the mini Sudoku (a nod to Algorithm X)"
           title="click me"
         >
-          {Array.from({ length: 9 }).map(() => (
-            <span class="dlx-cell" aria-hidden="true" />
+          {dlxGivens.map((given) => (
+            <span class="dlx-cell" data-given={given || undefined} aria-hidden="true">{given}</span>
           ))}
         </button>
       )
@@ -133,6 +136,10 @@ const showDlx = withEgg && project.egg === 'dlx';
     font-size: 9px;
     color: var(--text-faint);
     transition: color var(--speed) var(--ease), background var(--speed) var(--ease);
+  }
+
+  .dlx-cell[data-given] {
+    color: var(--text-secondary);
   }
 
   .dlx-cell.solved {

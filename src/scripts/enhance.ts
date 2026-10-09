@@ -597,22 +597,25 @@ function initDlxEgg(): void {
   const grid = egg?.querySelectorAll<HTMLElement>('.dlx-cell');
   if (!egg || !grid?.length) return;
 
+  // the givens rendered by ProjectCard must agree with this
   const solution = ['5', '3', '4', '6', '7', '8', '9', '1', '2'];
+  // only the blanks get solved; givens stay as printed
+  const blanks = [...grid].flatMap((cell, i) => (cell.dataset.given ? [] : [i]));
   let running = false;
 
   egg.addEventListener('click', () => {
     if (running) return;
     running = true;
-    grid.forEach((cell) => {
-      cell.textContent = '';
-      cell.classList.remove('solved');
-    });
+    for (const i of blanks) {
+      grid[i]!.textContent = '';
+      grid[i]!.classList.remove('solved');
+    }
 
     if (reducedMotion.matches) {
-      grid.forEach((cell, i) => {
-        cell.textContent = solution[i]!;
-        cell.classList.add('solved');
-      });
+      for (const i of blanks) {
+        grid[i]!.textContent = solution[i]!;
+        grid[i]!.classList.add('solved');
+      }
       toast('<strong>Algorithm X</strong> — exact cover via dancing links. Knuth, 2000.', 4600);
       running = false;
       return;
@@ -620,13 +623,13 @@ function initDlxEgg(): void {
 
     let step = 0;
     const timer = window.setInterval(() => {
-      if (step >= grid.length) {
+      if (step >= blanks.length) {
         window.clearInterval(timer);
         toast('<strong>Algorithm X</strong> — exact cover via dancing links. Knuth, 2000.', 4600);
         running = false;
         return;
       }
-      const idx = step;
+      const idx = blanks[step]!;
       const cell = grid[idx]!;
       // a couple of "candidate" flickers before the real value lands
       let flick = 0;
