@@ -157,6 +157,18 @@ const profilePageJsonLd = {
     text-decoration: none;
   }
 
+  /* on phones the print button would squeeze the name onto two lines;
+     drop it below the contact row instead */
+  @media (max-width: 560px) {
+    .resume-head {
+      grid-template-columns: 1fr;
+    }
+
+    .resume-actions {
+      order: 1;
+    }
+  }
+
   .resume-contact a:hover {
     color: var(--accent);
   }
