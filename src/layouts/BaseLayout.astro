@@ -84,25 +84,25 @@ const jsonLdBlocks = [personJsonLd, websiteJsonLd, ...jsonLd];
     <meta name="generator" content={Astro.generator} />
 
     <!-- runs before first paint: mark JS availability, restore the session
-         theme across page navigations, reset it on a full reload -->
+         theme and audience across page navigations, reset both on a full
+         reload -->
     <script is:inline>
       document.documentElement.classList.add('js');
       try {
         var nav = performance.getEntriesByType('navigation')[0];
-        if (nav && nav.type === 'reload') sessionStorage.removeItem('theme');
+        if (nav && nav.type === 'reload') {
+          sessionStorage.removeItem('theme');
+          sessionStorage.removeItem('audience');
+        }
         var theme = sessionStorage.getItem('theme');
         if (theme) document.documentElement.dataset.theme = theme;
-      } catch (e) {
-        /* storage unavailable — default theme */
-      }
-      try {
-        // machine mode was left on: keep the human page hidden until the
-        // token side is built, so navigating never flashes the plain text
-        if (localStorage.getItem('audience') === 'machine') {
+        // machine mode carried over from the last page: keep the human page
+        // hidden until the token side is built, so it never flashes plain text
+        if (sessionStorage.getItem('audience') === 'machine') {
           document.documentElement.classList.add('mk-pending');
         }
       } catch (e) {
-        /* storage unavailable — human mode */
+        /* storage unavailable — default theme, human mode */
       }
     </script>
 

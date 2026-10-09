@@ -393,9 +393,11 @@ export function setAudience(mode: Audience, animate = true): void {
     btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
   }
   try {
-    localStorage.setItem('audience', mode);
+    // session-scoped like the theme: survives navigation, the <head> script
+    // clears it on a full reload
+    sessionStorage.setItem('audience', mode);
   } catch {
-    /* private mode — fine */
+    /* storage unavailable — this page only */
   }
   machineOn = active;
   if (active) {
@@ -446,7 +448,8 @@ export function initMachineMode(toast: (html: string, ms?: number) => void): voi
 
   let saved: string | null = null;
   try {
-    saved = localStorage.getItem('audience');
+    saved = sessionStorage.getItem('audience');
+    localStorage.removeItem('audience'); // stale key from when it persisted forever
   } catch {
     /* ignore */
   }

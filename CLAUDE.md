@@ -126,8 +126,9 @@ Nav toggle `[ human | machine ]`. The page flips over, in place, to the side a
 language model receives: same layout, every word replaced by its token IDs,
 each ID sized to sit exactly where its word was (hover shows the word). A fixed
 bar gives the page's token count, `/llms.txt`, and "copy context" (the
-`machineContext()` doc). Persists via localStorage (`audience`). Esc exits.
-Reduced-motion swaps faces without the turn. This is the feature the owner
+`machineContext()` doc). Persists like the theme: `sessionStorage['audience']`,
+kept across navigations, cleared on a full reload by the `<head>` script. Esc
+exits. Reduced-motion swaps faces without the turn. This is the feature the owner
 cares most about — treat it as first-class, keep it tasteful (no gimmicks).
 Mechanics are documented at the top of `src/scripts/machine-mode.ts`; the
 gotchas that cost debugging time:
@@ -147,9 +148,9 @@ gotchas that cost debugging time:
   (scroll-reveal, caret). Back buttons forward clicks to their front twins.
 - **`mk-pending` stops the plain-text flash on navigation.** enhance.ts runs
   after first paint, so the `<head>` script adds `html.mk-pending` when
-  `audience` is `machine`; CSS hides `#main` + footer (and pre-selects the nav
-  switch) until `setAudience()` removes it. A 2.5s CSS unhide is the safety
-  net if the script never runs — keep it.
+  `sessionStorage['audience']` is `machine`; CSS hides `#main` + footer (and
+  pre-selects the nav switch) until `setAudience()` removes it. A 2.5s CSS
+  unhide is the safety net if the script never runs — keep it.
 - **Terminal output and toasts (jokes) are tokenized in place,** not flipped —
   the terminal is a modal dialog, toasts are transient. Their token styling is
   scoped to `body.machine-active .mk-live`, so the same spans read as plain
