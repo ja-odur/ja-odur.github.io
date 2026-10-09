@@ -409,6 +409,33 @@ html.js body.mk-instant .mk-back {
   }
 }
 
+/* split state — machine-mode.ts adds .mk-split once the flip has landed:
+   both faces turn forward again and the divider at --mk-split decides who
+   shows where (human left, tokens right). --mk-left is each face's own left
+   edge, so every block clips at the same viewport x. Hit-testing follows
+   clip-path, so links work on whichever side of the line you click. The
+   vertical -100vh insets keep anything overflowing a block unclipped. */
+html.js body.mk-split .mk-front,
+html.js body.mk-split .mk-back {
+  transform: none;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.6s var(--ease);
+}
+
+html.js body.mk-split .mk-front {
+  clip-path: inset(-100vh calc(100% - var(--mk-split, 0px) + var(--mk-left, 0px)) -100vh 0);
+}
+
+html.js body.mk-split .mk-back {
+  clip-path: inset(-100vh 0 -100vh calc(var(--mk-split, 0px) - var(--mk-left, 0px)));
+}
+
+body.mk-dragging {
+  cursor: col-resize;
+  user-select: none;
+}
+
 /* set by the <head> script when machine mode was left on; machine-mode.ts
    removes it once the token side is up. The delayed unhide is a safety net
    so a failed script can never leave the page blank. */
@@ -641,12 +668,14 @@ body.dev-mode [data-devnote]::before {
   .site-footer,
   .no-print,
   .mk-backs,
-  .machine-bar {
+  .machine-bar,
+  .machine-split {
     display: none !important;
   }
 
   .mk-front {
     transform: none !important;
+    clip-path: none !important;
   }
 
   a {

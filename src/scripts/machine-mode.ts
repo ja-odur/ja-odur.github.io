@@ -214,7 +214,12 @@ function place(): void {
     back.style.top = `${box.top}px`;
     back.style.left = `${box.left}px`;
     back.style.width = `${box.width}px`;
+    // the divider is a viewport x; each face clips at that x in its own box
+    const left = `${(box.left - window.scrollX).toFixed(1)}px`;
+    front.style.setProperty('--mk-left', left);
+    back.style.setProperty('--mk-left', left);
   }
+  setSplit(splitAt);
 }
 
 function countTokens(): number {
@@ -399,9 +404,116 @@ function watchLiveSurfaces(): void {
 const ui = {
   bar: $('#machine-bar'),
   count: $('#machine-count'),
+  split: $('#machine-split'),
   source: document.querySelector<HTMLTemplateElement>('#machine-source'),
   buttons: [...document.querySelectorAll<HTMLButtonElement>('.mode-switch button')],
 };
+
+/* -------------------------------- divider --------------------------------- */
+
+/**
+ * Once the page has flipped, both faces turn forward again and a vertical
+ * divider decides who shows where: human text to its left, tokens to its
+ * right (each face is clipped at the divider's x, see .mk-split in
+ * global.css). It opens a quarter of the way across the content column —
+ * not the viewport, whose outer quarter on a wide screen is empty margin —
+ * so the tokens have a readable anchor beside them. Drag it, arrow-key it,
+ * double-click to reset.
+ */
+const FLIP_MS = 950;
+/** divider position as a fraction of the viewport width */
+let splitAt = 0;
+let splitFrame = 0;
+/** once the visitor moves the divider, resizes keep their fraction */
+let splitMoved = false;
+
+/** a quarter of the way across the wide content column (the nav's) */
+function splitDefault(): number {
+  const column = document.querySelector('.nav-inner')?.getBoundingClientRect();
+  if (!column || !window.innerWidth) return 0.25;
+  return (column.left + column.width * 0.25) / window.innerWidth;
+}
+/** bumps on every mode change, so a late step from an old one does nothing */
+let turnId = 0;
+
+function setSplit(fraction: number): void {
+  splitAt = Math.min(1, Math.max(0, fraction));
+  document.documentElement.style.setProperty('--mk-split', `${(splitAt * window.innerWidth).toFixed(1)}px`);
+  if (ui.split) {
+    const pct = Math.round(splitAt * 100);
+    ui.split.setAttribute('aria-valuenow', String(pct));
+    ui.split.setAttribute('aria-valuetext', `${pct}% human-readable`);
+  }
+}
+
+/** ease the divider to `to`; a drag or a newer slide cancels it */
+function slideSplit(to: number, ms: number): void {
+  cancelAnimationFrame(splitFrame);
+  if (reducedMotion.matches) {
+    setSplit(to);
+    return;
+  }
+  const from = splitAt;
+  const start = performance.now();
+  const step = (now: number) => {
+    const k = Math.min(1, (now - start) / ms);
+    setSplit(from + (to - from) * (1 - (1 - k) ** 3));
+    if (k < 1) splitFrame = requestAnimationFrame(step);
+  };
+  splitFrame = requestAnimationFrame(step);
+}
+
+function initDivider(): void {
+  const handle = ui.split;
+  if (!handle) return;
+
+  const fromPointer = (e: PointerEvent) => setSplit(e.clientX / window.innerWidth);
+  handle.addEventListener('pointerdown', (e) => {
+    cancelAnimationFrame(splitFrame);
+    splitMoved = true;
+    handle.setPointerCapture(e.pointerId);
+    document.body.classList.add('mk-dragging');
+    fromPointer(e);
+  });
+  handle.addEventListener('pointermove', (e) => {
+    if (handle.hasPointerCapture(e.pointerId)) fromPointer(e);
+  });
+  const release = (e: PointerEvent) => {
+    if (handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
+    document.body.classList.remove('mk-dragging');
+  };
+  handle.addEventListener('pointerup', release);
+  handle.addEventListener('pointercancel', release);
+  handle.addEventListener('dblclick', () => {
+    splitMoved = false;
+    slideSplit(splitDefault(), 350);
+  });
+
+  handle.addEventListener('keydown', (e) => {
+    const step = e.shiftKey ? 0.1 : 0.02;
+    const moves: Record<string, number> = {
+      ArrowLeft: splitAt - step,
+      ArrowRight: splitAt + step,
+      Home: 0,
+      End: 1,
+    };
+    if (e.key in moves) {
+      e.preventDefault();
+      cancelAnimationFrame(splitFrame);
+      splitMoved = true;
+      setSplit(moves[e.key]!);
+    }
+  });
+
+  window.addEventListener(
+    'resize',
+    () => {
+      if (!document.body.classList.contains('mk-split')) return;
+      setSplit(splitMoved ? splitAt : splitDefault());
+    },
+    { passive: true }
+  );
+}
 
 function updateCount(): void {
   if (ui.count) ui.count.textContent = countTokens().toLocaleString('en-US');
@@ -437,25 +549,67 @@ export function setAudience(mode: Audience, animate = true): void {
   }
   if (!backs) return;
 
+  const turn = ++turnId;
+  const body = document.body;
   aimRotation();
   const instant = !animate || reducedMotion.matches;
-  document.body.classList.toggle('mk-instant', instant);
+  body.classList.toggle('mk-instant', instant);
   if (ui.bar) ui.bar.hidden = !active;
   updateCount();
+
   if (instant) {
     // no turn to animate: swap now, in the same frame the pending veil lifts
-    document.body.classList.toggle('machine-active', active);
-  } else {
-    // let a freshly built back paint face-down before it turns over
+    body.classList.toggle('machine-active', active);
+    body.classList.toggle('mk-split', active);
+    if (ui.split) ui.split.hidden = !active;
+    setSplit(active ? splitDefault() : 0);
+  } else if (active) {
+    // flip to the token side, then open the divider on a quarter of human text
+    cancelAnimationFrame(splitFrame);
+    splitMoved = false;
+    setSplit(0);
+    // let a freshly built back paint face-down before it turns over; the
+    // divider timer starts from inside that frame, so in a background tab
+    // (frames paused, timers not) it can't open before the flip has begun
     requestAnimationFrame(() =>
-      requestAnimationFrame(() => document.body.classList.toggle('machine-active', active))
+      requestAnimationFrame(() => {
+        if (turn !== turnId) return;
+        body.classList.add('machine-active');
+        window.setTimeout(() => {
+          if (turn !== turnId) return;
+          // at 0 the front is fully clipped, so turning it forward is invisible
+          body.classList.add('mk-split');
+          if (ui.split) ui.split.hidden = false;
+          slideSplit(splitDefault(), 650);
+        }, FLIP_MS);
+      })
     );
+  } else {
+    // close the human side, then flip the whole page back (on a timer, not
+    // the slide's end, so grabbing the divider mid-slide can't strand it)
+    if (ui.split) ui.split.style.pointerEvents = 'none';
+    slideSplit(0, 300);
+    window.setTimeout(() => {
+      if (ui.split) ui.split.style.pointerEvents = '';
+      if (turn !== turnId) return;
+      cancelAnimationFrame(splitFrame);
+      setSplit(0);
+      if (ui.split) ui.split.hidden = true;
+      // swap the forward-facing front back to face-down without a transition…
+      body.classList.add('mk-instant');
+      body.classList.remove('mk-split');
+      void body.offsetWidth;
+      body.classList.remove('mk-instant');
+      // …so this is the only visible move
+      body.classList.remove('machine-active');
+    }, 320);
   }
   document.documentElement.classList.remove('mk-pending');
 }
 
 export function initMachineMode(toast: (html: string, ms?: number) => void): void {
   watchLiveSurfaces();
+  initDivider();
   for (const btn of ui.buttons) {
     btn.addEventListener('click', () => setAudience(btn.dataset.mode as Audience));
   }

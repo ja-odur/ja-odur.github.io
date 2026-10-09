@@ -140,7 +140,7 @@ gotchas that cost debugging time:
 - **Place backs from layout, never a transformed rect.** `layoutBox()` ignores
   transforms: a section not yet scrolled into view is still slid down 20px by
   scroll-reveal, and measuring that left its tokens a line off the human text
-  once it settled. Backs also re-place on font load
+  once it settled (visible at the divider). Backs also re-place on font load
   and on every activation — a late web font re-wraps a line and shifts every
   block below, and ResizeObserver only reports while the page is rendering.
 - **Both faces also swap `visibility` at the halfway point.** Descendants on
@@ -152,6 +152,14 @@ gotchas that cost debugging time:
 - **The back mirrors the live front** via a MutationObserver: text changes are
   re-tokenized (the hero typing riff types in tokens), class changes copied
   (scroll-reveal, caret). Back buttons forward clicks to their front twins.
+- **After the flip, a divider splits the page** — human text left, tokens
+  right. Both faces turn forward again (`.mk-split`) and each is clipped at
+  `--mk-split` (a viewport x) minus its own `--mk-left`, so every block cuts
+  at the same line; hit-testing follows clip-path, so links work on either
+  side. It opens a quarter of the way across the content column (the nav's),
+  not the viewport — on a wide screen the viewport's first quarter is empty
+  margin. Drag / arrow keys / double-click to reset. Exit closes the divider,
+  then flips back (timer-driven, so a mid-slide grab can't strand it).
 - **`mk-pending` stops the plain-text flash on navigation.** enhance.ts runs
   after first paint, so the `<head>` script adds `html.mk-pending` when
   `sessionStorage['audience']` is `machine`; CSS hides `#main` + footer (and
