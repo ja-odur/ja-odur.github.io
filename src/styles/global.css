@@ -350,6 +350,124 @@ kbd {
   }
 }
 
+/* ------------------------ machine mode: the flip side --------------------- */
+
+/* Built by machine-mode.ts on first use. Every top-level block has a cloned
+   back face positioned over it; both faces turn together. The `html.js body`
+   prefix outranks .scroll-reveal's own transform and transition. */
+.mk-backs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+}
+
+html.js body .mk-front,
+html.js body .mk-back {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform-origin: 50% var(--mk-oy, 50%);
+  /* backface-visibility misses descendants on their own compositing layers
+     (the hero's animated headline showed through mirrored), so each face
+     also swaps visibility at the halfway point, when it is edge-on */
+  transition:
+    transform 0.9s cubic-bezier(0.65, 0.05, 0.25, 1),
+    opacity 0.6s var(--ease),
+    visibility 0s linear 0.45s;
+}
+
+html.js body .mk-back {
+  position: absolute;
+  margin: 0;
+  transform: perspective(2200px) rotateY(-180deg);
+  visibility: hidden;
+}
+
+html.js body.machine-active .mk-front {
+  transform: perspective(2200px) rotateY(180deg);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+html.js body.machine-active .mk-back {
+  transform: perspective(2200px) rotateY(0deg);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+html.js body.mk-instant .mk-front,
+html.js body.mk-instant .mk-back {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js body .mk-front,
+  html.js body .mk-back {
+    transition: none;
+  }
+}
+
+/* the bar is fixed to the bottom; keep the footer clear of it */
+body.machine-active {
+  padding-bottom: 3rem;
+}
+
+/* a token: its word stays (hidden) for layout, its ID is drawn on top */
+.mk-t {
+  position: relative;
+  border-radius: 2px;
+}
+
+.mk-t0 {
+  background: rgba(76, 201, 224, 0.13);
+}
+
+.mk-t1 {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.mk-t2 {
+  background: rgba(163, 177, 189, 0.1);
+}
+
+.mk-x {
+  visibility: hidden;
+}
+
+.mk-t::after {
+  content: attr(data-id);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scaleX(var(--mk-sx, 1));
+  font-family: var(--font-mono);
+  font-size: var(--mk-fs, 0.6em);
+  font-weight: 500;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mk-t--tiny::after {
+  content: '';
+}
+
+.mk-t:hover {
+  background: var(--accent-tint);
+  outline: 1px solid var(--accent-dim);
+}
+
+.mk-t:hover > .mk-x {
+  visibility: visible;
+}
+
+.mk-t:hover::after {
+  content: '';
+}
+
 /* --------------------------- easter egg layers --------------------------- */
 
 /* Shift+D — design grid overlay */
@@ -492,8 +610,14 @@ body.dev-mode [data-devnote]::before {
 
   .site-nav,
   .site-footer,
-  .no-print {
+  .no-print,
+  .mk-backs,
+  .machine-bar {
     display: none !important;
+  }
+
+  .mk-front {
+    transform: none !important;
   }
 
   a {

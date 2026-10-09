@@ -1,149 +1,92 @@
 ---
 import { machineContext } from '~/data/machine';
 
+// "copy context" hands over the same document /llms.txt serves
 const doc = machineContext();
 ---
 
-<section
-  class="machine-mode"
-  id="machine-mode"
-  role="region"
-  aria-label="Machine-readable profile"
-  hidden
->
-  <div class="machine-chrome mono">
-    <span class="lights" aria-hidden="true">
-      <i></i><i></i><i></i>
-    </span>
-    <span class="chrome-title">context-injection · odurjoseph.com</span>
-    <span class="chrome-meta">temp 0.0 · tokens streaming</span>
-  </div>
-
-  <div class="machine-scroll" tabindex="0" id="machine-scroll">
-    <pre class="machine-doc mono" id="machine-doc" aria-live="off"></pre>
-  </div>
-
-  <div class="machine-bar mono">
-    <span class="bar-hint">
-      also served raw at <a href="/llms.txt">/llms.txt</a>
-    </span>
-    <span class="bar-actions">
-      <button type="button" id="machine-skip">skip animation</button>
-      <button type="button" id="machine-copy">copy context</button>
-      <button type="button" id="machine-exit">
-        exit <kbd>esc</kbd>
-      </button>
-    </span>
-  </div>
-
+<div class="machine-bar mono" id="machine-bar" role="region" aria-label="Machine mode" hidden>
+  <span class="bar-status">
+    <span class="bar-dot" aria-hidden="true"></span>
+    this page is <strong id="machine-count">0</strong> tokens
+    <span class="bar-hint">· hover an id to see its word</span>
+  </span>
+  <span class="bar-actions">
+    <a href="/llms.txt">/llms.txt</a>
+    <button type="button" id="machine-copy">copy context</button>
+    <button type="button" id="machine-exit">exit <kbd>esc</kbd></button>
+  </span>
   <template id="machine-source">{doc}</template>
-</section>
+</div>
 
 <style>
-  .machine-mode[hidden] {
-    display: none;
-  }
-
-  .machine-mode {
-    position: fixed;
-    inset: var(--nav-height) 0 0 0;
-    z-index: 40;
-    display: flex;
-    flex-direction: column;
-    background:
-      radial-gradient(ellipse at top, rgba(76, 201, 224, 0.05), transparent 60%),
-      var(--bg);
-  }
-
-  .machine-chrome {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.6rem 1.25rem;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.75rem;
-    color: var(--text-faint);
-  }
-
-  .lights {
-    display: inline-flex;
-    gap: 6px;
-  }
-
-  .lights i {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--border-strong);
-  }
-
-  .lights i:first-child {
-    background: var(--accent-dim);
-  }
-
-  .chrome-meta {
-    margin-left: auto;
-  }
-
-  .machine-scroll {
-    flex: 1;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-
-  .machine-doc {
-    max-width: var(--container-wide);
-    margin-inline: auto;
-    padding: 2rem 1.25rem 4rem;
-    font-size: 0.8125rem;
-    line-height: 1.8;
-    color: var(--text-secondary);
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  .machine-doc::after {
-    content: '▋';
-    color: var(--accent);
-  }
-
-  .machine-doc.done::after {
-    content: '';
-  }
-
-  /* light syntax coloring, applied by the streamer */
-  .machine-doc :global(.tok-key) {
-    color: var(--accent);
-  }
-
-  .machine-doc :global(.tok-comment) {
-    color: var(--text-faint);
-    font-style: italic;
-  }
-
-  .machine-doc :global(.tok-tag) {
-    color: var(--accent-strong);
-  }
-
   .machine-bar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 45;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.5rem 1rem;
     flex-wrap: wrap;
-    padding: 0.6rem 1.25rem;
+    padding: 0.6rem 1.25rem calc(0.6rem + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--border);
+    background: var(--bg-overlay);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
     font-size: 0.75rem;
     color: var(--text-faint);
   }
 
-  .machine-bar a {
-    color: var(--text-secondary);
+  .machine-bar[hidden] {
+    display: none;
+  }
+
+  .bar-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .bar-status strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .bar-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .bar-dot {
+      animation: bar-pulse 1.6s var(--ease) infinite;
+    }
+
+    @keyframes bar-pulse {
+      50% {
+        opacity: 0.35;
+      }
+    }
+  }
+
+  @media (max-width: 560px) {
+    .bar-hint {
+      display: none;
+    }
   }
 
   .bar-actions {
     display: inline-flex;
+    align-items: center;
     gap: 0.5rem;
+  }
+
+  .bar-actions a {
+    color: var(--text-secondary);
+    margin-right: 0.25rem;
   }
 
   .machine-bar button {
@@ -160,10 +103,5 @@ const doc = machineContext();
   .machine-bar button:hover {
     color: var(--accent);
     border-color: var(--accent-dim);
-  }
-
-  /* while machine mode is active, hide the human page beneath */
-  :global(body.machine-active) {
-    overflow: hidden;
   }
 </style>

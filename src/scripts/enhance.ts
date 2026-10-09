@@ -4,6 +4,9 @@
  * is either the "For Machines" mode or an easter egg.
  */
 
+// machine mode lives in its own module: the flip, tokenizer, and live mirror
+import { initMachineMode } from './machine-mode';
+
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const $ = <T extends HTMLElement>(sel: string) =>
@@ -93,144 +96,6 @@ function setTheme(name: ThemeName): void {
   } catch {
     /* storage unavailable — theme applies to this page only */
   }
-}
-
-/* --------------------------- machine mode -------------------------------- */
-
-type Audience = 'human' | 'machine';
-
-const machine = {
-  region: $('#machine-mode'),
-  doc: $('#machine-doc'),
-  scroll: $('#machine-scroll'),
-  source: document.querySelector<HTMLTemplateElement>('#machine-source'),
-  buttons: [...document.querySelectorAll<HTMLButtonElement>('.mode-switch button')],
-  streamTimer: 0 as number,
-};
-
-function highlightLine(line: string): string {
-  const esc = line
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-  if (/^\s*#/.test(line)) return `<span class="tok-comment">${esc}</span>`;
-  if (/^\s*&lt;\/?context/.test(esc)) return `<span class="tok-tag">${esc}</span>`;
-  return esc.replace(
-    /^(\s*(?:- )?)([a-z_][a-z0-9_ ]*)(:)/i,
-    (_m, pre: string, key: string, colon: string) =>
-      `${pre}<span class="tok-key">${key}</span>${colon}`
-  );
-}
-
-function renderMachineDoc(instant: boolean): void {
-  const { doc, source, scroll } = machine;
-  if (!doc || !source) return;
-  const text = (source.content.textContent ?? '').trim();
-  const lines = text.split('\n');
-  window.clearInterval(machine.streamTimer);
-  doc.classList.remove('done');
-  doc.innerHTML = '';
-
-  const finishLine = (container: HTMLElement, line: string) => {
-    container.innerHTML = highlightLine(line);
-  };
-
-  if (instant) {
-    for (const line of lines) {
-      const span = document.createElement('span');
-      finishLine(span, line);
-      doc.append(span, document.createTextNode('\n'));
-    }
-    doc.classList.add('done');
-    return;
-  }
-
-  let lineIdx = 0;
-  let charIdx = 0;
-  let current: HTMLSpanElement | null = null;
-  // aim for ~3s total regardless of document length
-  const charsPerTick = Math.max(4, Math.ceil(text.length / 140));
-
-  machine.streamTimer = window.setInterval(() => {
-    let budget = charsPerTick;
-    while (budget > 0) {
-      if (lineIdx >= lines.length) {
-        window.clearInterval(machine.streamTimer);
-        doc.classList.add('done');
-        return;
-      }
-      const line = lines[lineIdx]!;
-      if (!current) {
-        current = document.createElement('span');
-        doc.append(current);
-      }
-      const take = Math.min(budget, line.length - charIdx);
-      charIdx += take;
-      budget -= take;
-      current.textContent = line.slice(0, charIdx);
-      if (charIdx >= line.length) {
-        finishLine(current, line);
-        doc.append(document.createTextNode('\n'));
-        current = null;
-        charIdx = 0;
-        lineIdx += 1;
-        budget -= 1;
-      }
-    }
-    scroll?.scrollTo({ top: scroll.scrollHeight });
-  }, 16);
-}
-
-function setAudience(mode: Audience, animate = true): void {
-  const active = mode === 'machine';
-  machine.region?.toggleAttribute('hidden', !active);
-  document.body.classList.toggle('machine-active', active);
-  for (const btn of machine.buttons) {
-    btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
-  }
-  try {
-    localStorage.setItem('audience', mode);
-  } catch {
-    /* private mode — fine */
-  }
-  if (active) {
-    renderMachineDoc(reducedMotion.matches || !animate);
-    machine.scroll?.focus({ preventScroll: true });
-  } else {
-    window.clearInterval(machine.streamTimer);
-  }
-}
-
-function initMachineMode(): void {
-  for (const btn of machine.buttons) {
-    btn.addEventListener('click', () => setAudience(btn.dataset.mode as Audience));
-  }
-
-  $('#machine-exit')?.addEventListener('click', () => setAudience('human'));
-  $('#machine-skip')?.addEventListener('click', () => renderMachineDoc(true));
-  $('#machine-copy')?.addEventListener('click', async () => {
-    const text = (machine.source?.content.textContent ?? '').trim();
-    try {
-      await navigator.clipboard.writeText(text);
-      toast('context copied — <strong>paste it into your favorite model</strong>');
-    } catch {
-      toast('clipboard unavailable — try <strong>/llms.txt</strong> instead');
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.body.classList.contains('machine-active')) {
-      setAudience('human');
-    }
-  });
-
-  let saved: string | null = null;
-  try {
-    saved = localStorage.getItem('audience');
-  } catch {
-    /* ignore */
-  }
-  if (saved === 'machine') setAudience('machine', false);
 }
 
 /* ------------------------------ terminal --------------------------------- */
@@ -704,7 +569,7 @@ function consoleBanner(): void {
 
 /* --------------------------------- boot ---------------------------------- */
 
-initMachineMode();
+initMachineMode(toast);
 initTerminal();
 initShortcuts();
 initJoke();

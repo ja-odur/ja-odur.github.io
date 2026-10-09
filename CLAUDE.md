@@ -22,8 +22,9 @@ the build.
 - **Plain CSS** — design tokens in `src/styles/global.css`, component styles
   scoped inside `.astro` files. No CSS framework, no CSS-in-JS.
 - **One hand-written script**, `src/scripts/enhance.ts` — the ONLY meaningful
-  JS shipped (~5–6 kB gzipped). Powers machine mode + easter eggs. Everything
-  it does is progressive enhancement; the site is fully usable with JS off.
+  JS shipped (~7 kB gzipped, one bundle; it imports `machine-mode.ts`). Powers
+  machine mode + easter eggs. Everything it does is progressive enhancement;
+  the site is fully usable with JS off.
 
 Do not add React/Vue/heavy deps or a UI framework. Do not add a client-side
 router. If a feature can be static HTML + a little vanilla TS, keep it that way.
@@ -56,7 +57,8 @@ src/
     BaseLayout.astro   <head> SEO, JSON-LD, page chrome, mounts enhance.ts
   pages/          index, projects, resume, 404, llms.txt.ts (endpoint)
   scripts/
-    enhance.ts     machine mode + easter eggs (vanilla TS, PE only)
+    enhance.ts     entry point: easter eggs, boots machine mode (vanilla TS, PE only)
+    machine-mode.ts  the flip side: tokenizer, back faces, live mirror
   styles/global.css  tokens, reset, print styles, easter-egg layers
 public/           CNAME, robots.txt, favicon.svg, og.png, jokes.json, icons
 tools/            one-off maintenance scripts (generate-og.mjs) — not built
@@ -112,7 +114,7 @@ Read these before touching the relevant area — each one cost real debugging.
 - **Fonts are self-hosted** via `@fontsource-variable/inter` (imported in
   BaseLayout). No Google Fonts network calls. Mono is the system stack.
 - **Every animation has a `prefers-reduced-motion` fallback** (hero typing,
-  machine-mode token streaming, DLX solve, blink). Match this for any new motion.
+  machine-mode flip, DLX solve, blink). Match this for any new motion.
 - **og.png is a generated static asset** (1200×630). Regenerate with
   `node tools/generate-og.mjs` when the name/title/tagline changes — there is no
   build step that does so automatically. The generator uses `sharp` (transitive
@@ -120,11 +122,32 @@ Read these before touching the relevant area — each one cost real debugging.
 
 ## "For Machines" mode
 
-Nav toggle `[ human | machine ]`. Machine mode overlays the viewport as an LLM
-"context-injection" window: a YAML-ish document token-streamed into view, with a
-real `/llms.txt` behind it. Persists via localStorage (`audience`). Esc exits.
-Reduced-motion renders instantly. This is the feature the owner cares most about
-— treat it as first-class, keep it tasteful (no gimmicks), extend via `machine.ts`.
+Nav toggle `[ human | machine ]`. The page flips over, in place, to the side a
+language model receives: same layout, every word replaced by its token IDs,
+each ID sized to sit exactly where its word was (hover shows the word). A fixed
+bar gives the page's token count, `/llms.txt`, and "copy context" (the
+`machineContext()` doc). Persists via localStorage (`audience`). Esc exits.
+Reduced-motion swaps faces without the turn. This is the feature the owner
+cares most about — treat it as first-class, keep it tasteful (no gimmicks).
+Mechanics are documented at the top of `src/scripts/machine-mode.ts`; the
+gotchas that cost debugging time:
+
+- **Backs are clones, not wrappers.** Each block in `#main` (+ the footer) gets
+  an absolutely positioned clone in `.mk-backs`; front and back rotate
+  independently. Never wrap or move the real blocks — re-inserting a node
+  restarts its CSS animations (the hero's reveal) mid-flip.
+- **Both faces also swap `visibility` at the halfway point.** Descendants on
+  their own compositing layers ignore the parent's `backface-visibility` — the
+  hero headline showed through mirrored without it.
+- **One `.mk-run` span per text node.** Loose token spans inside a flex/grid
+  parent (the hero kicker) each become an item and stop wrapping, which
+  overflowed the page on phones.
+- **The back mirrors the live front** via a MutationObserver: text changes are
+  re-tokenized (the hero typing riff types in tokens), class changes copied
+  (scroll-reveal, caret). Back buttons forward clicks to their front twins.
+- **The tokenizer is illustrative** (hash IDs into a cl100k-sized vocabulary),
+  deterministic per string. Backs are built client-side on first flip only —
+  crawlers never see them; `/llms.txt` stays the real machine document.
 
 ## Easter eggs (maintainer reference — keep OUT of the README)
 
