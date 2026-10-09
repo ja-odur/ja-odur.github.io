@@ -145,6 +145,11 @@ gotchas that cost debugging time:
 - **The back mirrors the live front** via a MutationObserver: text changes are
   re-tokenized (the hero typing riff types in tokens), class changes copied
   (scroll-reveal, caret). Back buttons forward clicks to their front twins.
+- **`mk-pending` stops the plain-text flash on navigation.** enhance.ts runs
+  after first paint, so the `<head>` script adds `html.mk-pending` when
+  `audience` is `machine`; CSS hides `#main` + footer (and pre-selects the nav
+  switch) until `setAudience()` removes it. A 2.5s CSS unhide is the safety
+  net if the script never runs — keep it.
 - **The tokenizer is illustrative** (hash IDs into a cl100k-sized vocabulary),
   deterministic per string. Backs are built client-side on first flip only —
   crawlers never see them; `/llms.txt` stays the real machine document.

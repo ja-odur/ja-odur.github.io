@@ -408,6 +408,21 @@ html.js body.mk-instant .mk-back {
   }
 }
 
+/* set by the <head> script when machine mode was left on; machine-mode.ts
+   removes it once the token side is up. The delayed unhide is a safety net
+   so a failed script can never leave the page blank. */
+html.mk-pending #main,
+html.mk-pending .site-footer {
+  visibility: hidden;
+  animation: mk-unhide 0s linear 2.5s forwards;
+}
+
+@keyframes mk-unhide {
+  to {
+    visibility: visible;
+  }
+}
+
 /* the bar is fixed to the bottom; keep the footer clear of it */
 body.machine-active {
   padding-bottom: 3rem;

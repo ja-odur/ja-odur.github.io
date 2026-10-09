@@ -95,6 +95,15 @@ const jsonLdBlocks = [personJsonLd, websiteJsonLd, ...jsonLd];
       } catch (e) {
         /* storage unavailable — default theme */
       }
+      try {
+        // machine mode was left on: keep the human page hidden until the
+        // token side is built, so navigating never flashes the plain text
+        if (localStorage.getItem('audience') === 'machine') {
+          document.documentElement.classList.add('mk-pending');
+        }
+      } catch (e) {
+        /* storage unavailable — human mode */
+      }
     </script>
 
     <title>{title}</title>

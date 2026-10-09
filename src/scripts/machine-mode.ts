@@ -342,10 +342,16 @@ export function setAudience(mode: Audience, animate = true): void {
   document.body.classList.toggle('mk-instant', instant);
   if (ui.bar) ui.bar.hidden = !active;
   updateCount();
-  // let a freshly built back paint face-down before it turns over
-  requestAnimationFrame(() =>
-    requestAnimationFrame(() => document.body.classList.toggle('machine-active', active))
-  );
+  if (instant) {
+    // no turn to animate: swap now, in the same frame the pending veil lifts
+    document.body.classList.toggle('machine-active', active);
+  } else {
+    // let a freshly built back paint face-down before it turns over
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => document.body.classList.toggle('machine-active', active))
+    );
+  }
+  document.documentElement.classList.remove('mk-pending');
 }
 
 export function initMachineMode(toast: (html: string, ms?: number) => void): void {
