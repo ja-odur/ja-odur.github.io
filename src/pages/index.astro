@@ -16,7 +16,7 @@ const description =
 <BaseLayout title={title} description={description} ogType="profile">
   <Hero />
 
-  <section class="section container scroll-reveal" data-devnote="about — two paragraphs, no adjectives doing heavy lifting">
+  <section class="section container container--wide scroll-reveal" data-devnote="about — two paragraphs, no adjectives doing heavy lifting">
     <div class="section-head">
       <h2 id="about">About</h2>
     </div>
@@ -26,7 +26,7 @@ const description =
     </ul>
   </section>
 
-  <section class="section container scroll-reveal" data-devnote="experience highlights — full history lives at /resume">
+  <section class="section container container--wide scroll-reveal" data-devnote="experience highlights — full history lives at /resume">
     <div class="section-head">
       <h2 id="work">Selected work</h2>
     </div>
@@ -62,7 +62,7 @@ const description =
     </p>
   </section>
 
-  <section class="section container scroll-reveal" data-devnote="contact — one CTA is enough">
+  <section class="section container container--wide scroll-reveal" data-devnote="contact — one CTA is enough">
     <div class="section-head">
       <h2 id="contact">Contact</h2>
     </div>
@@ -82,7 +82,10 @@ const description =
 </BaseLayout>
 
 <style>
+  /* sections share the wide container so the left edge stays put; prose
+     keeps a readable measure inside it */
   .about-para {
+    max-width: 38rem;
     color: var(--text-secondary);
   }
 
@@ -125,6 +128,7 @@ const description =
   }
 
   .work-body p {
+    max-width: 38rem;
     margin-top: 0.35rem;
     color: var(--text-secondary);
     font-size: 0.9375rem;
