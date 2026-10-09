@@ -183,12 +183,37 @@ function fit(tokens: HTMLElement[]): void {
   });
 }
 
+/**
+ * Where a block sits in the document, ignoring transforms: a section that
+ * hasn't scrolled into view is still shifted by its scroll-reveal slide (and
+ * mid-flip, by the turn), and measuring that put its back face 20px low once
+ * it settled. Untransformed blocks use the exact rect; transformed ones fall
+ * back to offset* (whole pixels). Width always comes from computed style —
+ * fractional, transform-free, border-box like the back's own width — since
+ * a rounded-down width could re-wrap a line.
+ */
+function layoutBox(el: HTMLElement): { top: number; left: number; width: number } {
+  const style = getComputedStyle(el);
+  const width = parseFloat(style.width);
+  if (style.transform === 'none') {
+    const r = el.getBoundingClientRect();
+    return { top: r.top + window.scrollY, left: r.left + window.scrollX, width };
+  }
+  let top = 0;
+  let left = 0;
+  for (let n: HTMLElement | null = el; n; n = n.offsetParent as HTMLElement | null) {
+    top += n.offsetTop;
+    left += n.offsetLeft;
+  }
+  return { top, left, width };
+}
+
 function place(): void {
   for (const { front, back } of faces) {
-    const r = front.getBoundingClientRect();
-    back.style.top = `${r.top + window.scrollY}px`;
-    back.style.left = `${r.left + window.scrollX}px`;
-    back.style.width = `${r.width}px`;
+    const box = layoutBox(front);
+    back.style.top = `${box.top}px`;
+    back.style.left = `${box.left}px`;
+    back.style.width = `${box.width}px`;
   }
 }
 
@@ -241,6 +266,11 @@ function build(): void {
     resizeTimer = window.setTimeout(relayout, 80);
   });
   for (const { front } of faces) ro.observe(front);
+  // the web font can land after the build and re-wrap a line, shifting every
+  // block below it; ResizeObserver only reports while the page renders, so
+  // don't rely on it alone
+  document.fonts?.ready.then(relayout);
+  document.fonts?.addEventListener('loadingdone', relayout); // fonts requested later
 
   // buttons on the back drive their front twins (DLX solve, joke, terminal)
   backs.addEventListener('click', (e) => {
@@ -381,7 +411,7 @@ function updateCount(): void {
 function aimRotation(): void {
   const mid = window.innerHeight / 2;
   for (const { front, back } of faces) {
-    const y = `${(mid - front.getBoundingClientRect().top).toFixed(0)}px`;
+    const y = `${(mid - (layoutBox(front).top - window.scrollY)).toFixed(0)}px`;
     front.style.setProperty('--mk-oy', y);
     back.style.setProperty('--mk-oy', y);
   }
@@ -402,6 +432,7 @@ export function setAudience(mode: Audience, animate = true): void {
   machineOn = active;
   if (active) {
     build();
+    place(); // cheap layout reads; catches any shift since the build
     tokenizeLiveSurfaces();
   }
   if (!backs) return;

@@ -137,6 +137,12 @@ gotchas that cost debugging time:
   an absolutely positioned clone in `.mk-backs`; front and back rotate
   independently. Never wrap or move the real blocks — re-inserting a node
   restarts its CSS animations (the hero's reveal) mid-flip.
+- **Place backs from layout, never a transformed rect.** `layoutBox()` ignores
+  transforms: a section not yet scrolled into view is still slid down 20px by
+  scroll-reveal, and measuring that left its tokens a line off the human text
+  once it settled. Backs also re-place on font load
+  and on every activation — a late web font re-wraps a line and shifts every
+  block below, and ResizeObserver only reports while the page is rendering.
 - **Both faces also swap `visibility` at the halfway point.** Descendants on
   their own compositing layers ignore the parent's `backface-visibility` — the
   hero headline showed through mirrored without it.
