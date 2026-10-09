@@ -84,6 +84,7 @@ export const projects: Project[] = [
       'Astro static site, zero framework JavaScript, dark-first design system, structured data throughout, deployed to GitHub Pages. Try the “machines” toggle in the header.',
     stack: ['Astro', 'TypeScript', 'CSS', 'GitHub Pages'],
     link: 'https://github.com/ja-odur/ja-odur.github.io',
+    featured: true,
   },
 ];
 
