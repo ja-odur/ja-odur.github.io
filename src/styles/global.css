@@ -108,6 +108,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* machine mode locks body scroll; without a reserved gutter the scrollbar
+     vanishes and the centered nav shifts sideways on every toggle */
+  scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
 }
 
