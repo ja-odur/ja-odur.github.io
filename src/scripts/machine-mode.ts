@@ -213,6 +213,7 @@ function spaceBeside(node: Node | null, line: number, range: Range): number {
  * word's width in proportion, in order, so "Africa." shows both IDs.
  */
 function fit(tokens: HTMLElement[]): void {
+  markTokensMoved();
   measureCtx ??= document.createElement('canvas').getContext('2d');
   const fonts = new Map<Element, string>();
   const range = document.createRange();
@@ -333,6 +334,7 @@ function positionBack(face: Face): void {
 }
 
 function place(): void {
+  markTokensMoved();
   for (const face of faces) {
     face.box = layoutBox(face.front);
     positionBack(face);
@@ -359,10 +361,6 @@ function syncAnimations(): void {
       }
     }
   }
-}
-
-function countTokens(): number {
-  return backs?.querySelectorAll('.mk-t').length ?? 0;
 }
 
 function build(): void {
@@ -557,12 +555,68 @@ function watchLiveSurfaces(): void {
 const ui = {
   bar: $('#machine-bar'),
   count: $('#machine-count'),
+  total: $('#machine-total'),
   split: $('#machine-split'),
   source: document.querySelector<HTMLTemplateElement>('#machine-source'),
 };
 
+/* ------------------------------- token bar -------------------------------- */
+
+/**
+ * The bar counts tokens as the divider converts them — every token on the
+ * page whose center is right of the line — and shows only while the divider
+ * is moving (drag, keys, a click's slide), lingering BAR_LINGER after it
+ * stops, and staying up while the pointer or focus is on it (it holds copy
+ * context, /llms.txt and exit). Token x-positions are kept sorted, so each
+ * frame of a drag is a binary search; any re-fit or re-place marks them
+ * stale and they're re-read once on the next count.
+ */
+const BAR_LINGER = 2500;
+let barTimer = 0;
+let tokenXs: number[] = [];
+let tokenXsStale = true;
+
+function markTokensMoved(): void {
+  tokenXsStale = true;
+}
+
 function updateCount(): void {
-  if (ui.count) ui.count.textContent = countTokens().toLocaleString('en-US');
+  if (!backs) return;
+  if (tokenXsStale) {
+    tokenXs = [...backs.querySelectorAll<HTMLElement>('.mk-t')]
+      .map((tok) => {
+        const r = tok.getBoundingClientRect();
+        return r.left + r.width / 2;
+      })
+      .sort((a, b) => a - b);
+    tokenXsStale = false;
+  }
+  const line = splitAt * viewWidth();
+  let lo = 0;
+  let hi = tokenXs.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (tokenXs[mid]! <= line) lo = mid + 1;
+    else hi = mid;
+  }
+  if (ui.count) ui.count.textContent = (tokenXs.length - lo).toLocaleString('en-US');
+  if (ui.total) ui.total.textContent = tokenXs.length.toLocaleString('en-US');
+}
+
+function showBar(): void {
+  if (!ui.bar) return;
+  ui.bar.classList.add('shown');
+  window.clearTimeout(barTimer);
+  barTimer = window.setTimeout(hideBar, BAR_LINGER);
+}
+
+function hideBar(): void {
+  if (!ui.bar) return;
+  if (ui.bar.matches(':hover, :focus-within') || document.body.classList.contains('mk-dragging')) {
+    barTimer = window.setTimeout(hideBar, BAR_LINGER);
+    return;
+  }
+  ui.bar.classList.remove('shown');
 }
 
 /* -------------------------------- divider --------------------------------- */
@@ -645,6 +699,7 @@ function setSplit(fraction: number): void {
   const on = px < rest.contentRight - 0.5;
   ui.split?.classList.toggle('at-rest', !on);
   setEngaged(on);
+  updateCount();
 }
 
 /** the line crossing into the content turns the token side on or off */
@@ -659,8 +714,6 @@ function setEngaged(on: boolean): void {
     syncAnimations();
   }
   document.body.classList.toggle('machine-active', on);
-  if (ui.bar) ui.bar.hidden = !on;
-  updateCount();
 }
 
 function saveSplit(): void {
@@ -693,10 +746,12 @@ function slideSplit(to: number, ms: number): void {
 
 function openSplit(): void {
   splitMoved = false;
+  showBar();
   slideSplit(splitDefault(), 650);
 }
 
 function dockSplit(): void {
+  showBar();
   slideSplit(restAt(), 450);
 }
 
@@ -704,6 +759,13 @@ function initDivider(): void {
   const handle = ui.split;
   if (!handle) return;
   handle.hidden = false;
+  if (ui.bar) {
+    ui.bar.hidden = false; // visibility is .shown from here on
+    ui.bar.addEventListener('pointerleave', () => {
+      window.clearTimeout(barTimer);
+      barTimer = window.setTimeout(hideBar, BAR_LINGER);
+    });
+  }
   computeRest(); // labels have to be laid out to be measured
 
   // build ahead of the first drag, so the drag itself never hitches
@@ -716,6 +778,8 @@ function initDivider(): void {
     handle.setPointerCapture(e.pointerId);
     drag = { id: e.pointerId, x: e.clientX, moved: false };
     document.body.classList.add('mk-dragging');
+    build();
+    showBar();
   });
   handle.addEventListener('pointermove', (e) => {
     if (!drag || drag.id !== e.pointerId) return;
@@ -723,6 +787,7 @@ function initDivider(): void {
     drag.moved = true;
     splitMoved = true;
     setSplit(e.clientX / viewWidth());
+    showBar();
   });
   const release = (e: PointerEvent) => {
     if (!drag || drag.id !== e.pointerId) return;
@@ -758,8 +823,10 @@ function initDivider(): void {
       e.preventDefault();
       cancelAnimationFrame(splitFrame);
       splitMoved = true;
+      build();
       setSplit(moves[e.key]!);
       saveSplit();
+      showBar();
     }
   });
 

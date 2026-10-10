@@ -408,10 +408,6 @@ html.mk-pending .site-footer {
   }
 }
 
-/* the bar is fixed to the bottom; keep the footer clear of it */
-body.machine-active {
-  padding-bottom: 3rem;
-}
 
 /* a token: its word stays (invisible) for layout, its ID is drawn on top.
    Back faces always show tokens; live surfaces (terminal output, toasts) are

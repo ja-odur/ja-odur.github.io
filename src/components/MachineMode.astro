@@ -26,7 +26,7 @@ const doc = machineContext();
 <div class="machine-bar mono" id="machine-bar" role="region" aria-label="Machine mode" hidden>
   <span class="bar-status">
     <span class="bar-dot" aria-hidden="true"></span>
-    this page is <strong id="machine-count">0</strong> tokens
+    <strong id="machine-count">0</strong> of <span id="machine-total">0</span> tokens converted
     <span class="bar-hint">· hover an id to see its word</span>
   </span>
   <span class="bar-actions">
@@ -200,7 +200,34 @@ const doc = machineContext();
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
     color: var(--text-faint);
+    /* shown only while the divider moves, then lingers a few seconds (see
+       showBar() in machine-mode.ts) */
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform 0.3s var(--ease),
+      opacity 0.3s var(--ease),
+      visibility 0s linear 0.3s;
+  }
+
+  .machine-bar.shown {
+    transform: none;
+    opacity: 1;
+    visibility: visible;
+    transition:
+      transform 0.3s var(--ease),
+      opacity 0.3s var(--ease);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .machine-bar,
+    .machine-bar.shown {
+      transform: none;
+      transition: none;
+    }
   }
 
   .machine-bar[hidden] {

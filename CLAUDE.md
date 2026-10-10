@@ -134,8 +134,11 @@ own font, size and weight, on its baseline, condensed horizontally to the
 word's width so text and tokens meet at the divider at the same scale (hover
 shows the word). A click opens it a quarter
 of the way across the content column; a click, Esc, the bar's exit, or End
-returns it to rest. A fixed bar gives the page's token count, `/llms.txt`, and "copy
-context" (the `machineContext()` doc). The position persists like the theme —
+returns it to rest. While the divider moves (drag, keys, a click's slide) a
+bar slides up counting tokens as they convert — "412 of 856 tokens converted",
+every token on the page right of the line — plus `/llms.txt` and "copy
+context" (the `machineContext()` doc). It lingers 2.5s after the last
+movement, and stays while the pointer or focus is on it. The position persists like the theme —
 `sessionStorage['mk-split']` (a fraction, or `default`), kept across
 navigations, cleared on a full reload by the `<head>` script. This is the
 feature the owner cares most about — treat it as first-class, keep it tasteful
