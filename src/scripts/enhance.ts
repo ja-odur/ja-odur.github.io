@@ -4,7 +4,7 @@
  * is either the "For Machines" mode or an easter egg.
  */
 
-// machine mode lives in its own module: the flip, tokenizer, and live mirror
+// machine mode lives in its own module: the divider, tokenizer, and live mirror
 import { initMachineMode } from './machine-mode';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');

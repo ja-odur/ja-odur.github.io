@@ -1,39 +1,41 @@
 /**
- * "For Machines" mode — the page flips over, in place, to the side a
- * language model receives: the same layout, with every word replaced by
- * the token IDs it becomes.
+ * "For Machines" mode — a divider splits the page: human text to its left,
+ * and to its right the same page as a language model receives it, every
+ * word replaced in place by the token IDs it becomes.
  *
  * How it works:
  * - Each top-level block of the page (main's children and the footer) gets
- *   a "back face": a deep clone, absolutely positioned over the original,
- *   whose text nodes are split into tokens. A token keeps its original text
- *   (visibility: hidden) so the back lays out exactly like the front; the ID
- *   is drawn on top via ::after, sized to fit the word it replaces. Hovering
- *   a token shows the word again.
- * - Front and back each rotate on their own (perspective() in the transform,
- *   backface-visibility: hidden) rather than inside a shared wrapper, so the
- *   real page is never moved in the DOM — moving it would restart its CSS
- *   animations and break the scroll-reveal observer.
- * - A MutationObserver mirrors the live front onto the back: text changes
- *   are re-tokenized (the hero's typing riff types in tokens) and class
- *   changes are copied (scroll-reveal, the caret's typing state). Button
- *   clicks on the back are forwarded to the front, so the easter eggs still
- *   work; links navigate natively.
- * - Nothing is built until the first flip, so the mode costs nothing unless
- *   used. The back faces are client-side only: crawlers and screen readers
- *   get the human page (backs are aria-hidden); /llms.txt is the real
- *   machine-readable document.
+ *   a "back face": a deep clone, absolutely positioned exactly over the
+ *   original, whose text nodes are split into tokens. A token keeps its
+ *   original text (visibility: hidden) so the back lays out exactly like the
+ *   front; the ID is drawn on top via ::after, sized to fit the word it
+ *   replaces. Hovering a token shows the word again.
+ * - Both faces are clipped at the divider's x (global.css), so the two
+ *   halves meet on the same pixel. The real page is never moved in the DOM —
+ *   re-inserting it would restart its CSS animations and break the
+ *   scroll-reveal observer.
+ * - The back mirrors the live front, synchronously, so the seam never shows
+ *   two states at once: a MutationObserver re-tokenizes text changes (the
+ *   hero's typing riff types in tokens) and copies class and style changes
+ *   (scroll-reveal, the caret, the hero glow) in the same task; CSS
+ *   animations on the clones are set to their originals' clocks. Pointer
+ *   moves and button clicks on the back are forwarded to the front, so the
+ *   glow and the easter eggs keep working; links navigate natively.
+ * - Nothing is built until the divider is first approached, so the mode
+ *   costs nothing unless used. Backs are client-side only: crawlers and
+ *   screen readers get the human page (backs are aria-hidden); /llms.txt is
+ *   the real machine-readable document.
  *
  * The tokenizer is illustrative, not a real BPE: common words stay whole,
  * longer words split into deterministic 2–5 character pieces, and IDs are a
  * hash into a cl100k-sized vocabulary. Same text → same IDs, every visit.
  */
 
-type Audience = 'human' | 'machine';
-
 interface Face {
   front: HTMLElement;
   back: HTMLElement;
+  /** last measured layout box, reapplied when the front's style is mirrored */
+  box?: { top: number; left: number; width: number };
 }
 
 interface Segment {
@@ -184,20 +186,26 @@ function fit(tokens: HTMLElement[]): void {
 }
 
 /**
- * Where a block sits in the document, ignoring transforms: a section that
- * hasn't scrolled into view is still shifted by its scroll-reveal slide (and
- * mid-flip, by the turn), and measuring that put its back face 20px low once
- * it settled. Untransformed blocks use the exact rect; transformed ones fall
- * back to offset* (whole pixels). Width always comes from computed style —
- * fractional, transform-free, border-box like the back's own width — since
- * a rounded-down width could re-wrap a line.
+ * Where a block sits in the document, ignoring transforms, to the
+ * sub-pixel: a section that hasn't scrolled into view is still slid down by
+ * scroll-reveal, and measuring that put its back face 20px low once it
+ * settled. That slide is a pure translation, so it is subtracted from the
+ * exact rect; any other transform falls back to offset* (whole pixels, which
+ * left a visible half-pixel seam on centered columns). Width always comes
+ * from computed style — fractional, transform-free, border-box like the
+ * back's own width — since a rounded-down width could re-wrap a line.
  */
 function layoutBox(el: HTMLElement): { top: number; left: number; width: number } {
   const style = getComputedStyle(el);
   const width = parseFloat(style.width);
-  if (style.transform === 'none') {
-    const r = el.getBoundingClientRect();
-    return { top: r.top + window.scrollY, left: r.left + window.scrollX, width };
+  const r = el.getBoundingClientRect();
+  const m = style.transform === 'none' ? null : new DOMMatrixReadOnly(style.transform);
+  if (!m || (m.is2D && m.a === 1 && m.b === 0 && m.c === 0 && m.d === 1)) {
+    return {
+      top: r.top + window.scrollY - (m?.f ?? 0),
+      left: r.left + window.scrollX - (m?.e ?? 0),
+      width,
+    };
   }
   let top = 0;
   let left = 0;
@@ -208,18 +216,47 @@ function layoutBox(el: HTMLElement): { top: number; left: number; width: number 
   return { top, left, width };
 }
 
+function positionBack(face: Face): void {
+  const { front, back, box } = face;
+  if (!box) return;
+  back.style.top = `${box.top}px`;
+  back.style.left = `${box.left}px`;
+  back.style.width = `${box.width}px`;
+  // the divider is a viewport x; each face clips at that x in its own box
+  const left = `${(box.left - window.scrollX).toFixed(2)}px`;
+  // the front is observed: writing an unchanged value would mirror its style
+  // back here and loop
+  if (front.style.getPropertyValue('--mk-left') !== left) front.style.setProperty('--mk-left', left);
+  back.style.setProperty('--mk-left', left);
+}
+
 function place(): void {
-  for (const { front, back } of faces) {
-    const box = layoutBox(front);
-    back.style.top = `${box.top}px`;
-    back.style.left = `${box.left}px`;
-    back.style.width = `${box.width}px`;
-    // the divider is a viewport x; each face clips at that x in its own box
-    const left = `${(box.left - window.scrollX).toFixed(1)}px`;
-    front.style.setProperty('--mk-left', left);
-    back.style.setProperty('--mk-left', left);
+  for (const face of faces) {
+    face.box = layoutBox(face.front);
+    positionBack(face);
   }
   setSplit(splitAt);
+}
+
+/**
+ * CSS animations restart on a freshly cloned node; set each back animation
+ * to its front twin's clock, so the seam never shows the wave, a fade-in or
+ * the caret blink in two different phases.
+ */
+function syncAnimations(): void {
+  if (!document.getAnimations) return;
+  for (const anim of document.getAnimations()) {
+    if (!(anim instanceof CSSAnimation)) continue;
+    const effect = anim.effect as KeyframeEffect | null;
+    const target = effect?.target;
+    const twin = target && toBack.get(target);
+    if (!twin) continue;
+    for (const other of twin.getAnimations()) {
+      if (other instanceof CSSAnimation && other.animationName === anim.animationName) {
+        other.currentTime = anim.currentTime;
+      }
+    }
+  }
 }
 
 function countTokens(): number {
@@ -277,6 +314,15 @@ function build(): void {
   document.fonts?.ready.then(relayout);
   document.fonts?.addEventListener('loadingdone', relayout); // fonts requested later
 
+  // pointer moves over a back reach its front (the hero's glow follows the
+  // pointer on both sides of the line)
+  backs.addEventListener('pointermove', (e) => {
+    const face = faces.find((f) => f.back.contains(e.target as Node));
+    face?.front.dispatchEvent(
+      new PointerEvent('pointermove', { clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType })
+    );
+  });
+
   // buttons on the back drive their front twins (DLX solve, joke, terminal)
   backs.addEventListener('click', (e) => {
     const btn = (e.target as Element).closest('button');
@@ -289,7 +335,6 @@ function build(): void {
 }
 
 let pending = new Set<HTMLElement>();
-let flushQueued = false;
 
 function onMutations(records: MutationRecord[]): void {
   for (const rec of records) {
@@ -297,9 +342,15 @@ function onMutations(records: MutationRecord[]): void {
       const el = rec.target as Element;
       const twin = toBack.get(el);
       if (!twin || !rec.attributeName) continue;
-      const isRoot = faces.some((f) => f.front === el);
-      // roots carry the flip's own inline styles and classes; mirror only page state
-      if (isRoot && rec.attributeName === 'style') continue;
+      const face = faces.find((f) => f.front === el);
+      const isRoot = !!face;
+      if (face && rec.attributeName === 'style') {
+        // page state rides on the root's style too (the hero's --glow-x/y);
+        // copy it, then reapply the back's own placement on top
+        face.back.setAttribute('style', el.getAttribute('style') ?? '');
+        positionBack(face);
+        continue;
+      }
       const value = el.getAttribute(rec.attributeName);
       if (value === null) twin.removeAttribute(rec.attributeName);
       else twin.setAttribute(rec.attributeName, value);
@@ -307,20 +358,19 @@ function onMutations(records: MutationRecord[]): void {
         twin.classList.remove('mk-front');
         twin.classList.add('mk-back');
       }
+      if (rec.attributeName === 'class') syncAnimations();
       continue;
     }
     const host = rec.target.nodeType === Node.TEXT_NODE ? rec.target.parentElement : (rec.target as HTMLElement);
     if (host) pending.add(host);
   }
-  if (pending.size && !flushQueued) {
-    flushQueued = true;
-    requestAnimationFrame(flush);
-  }
+  // in this same task, before the next paint: a frame's lag would show the
+  // old text on one side of the seam and the new on the other
+  if (pending.size) flush();
 }
 
 /** Re-clone and re-tokenize each changed element's children on the back. */
 function flush(): void {
-  flushQueued = false;
   const made: HTMLElement[] = [];
   for (const front of pending) {
     const back = toBack.get(front);
@@ -336,14 +386,15 @@ function flush(): void {
   }
   pending = new Set();
   if (made.length) fit(made);
+  syncAnimations();
   updateCount();
 }
 
 /* --------------------- live surfaces: terminal, toasts -------------------- */
 
 /**
- * Text outside the page blocks can't flip: the terminal is a modal dialog
- * and toasts (the jokes) come and go. While machine mode is on, their text
+ * Text outside the page blocks has no back face: the terminal is a modal
+ * dialog and toasts (the jokes) come and go. While machine mode is on, their text
  * is tokenized in place instead. Token styling on `.mk-live` is scoped to
  * body.machine-active in global.css, so the same spans read as plain text
  * once you're back in human mode. The terminal's input stays plain on
@@ -399,50 +450,84 @@ function watchLiveSurfaces(): void {
   }
 }
 
-/* --------------------------------- flip ----------------------------------- */
+/* ----------------------------------- ui ----------------------------------- */
 
 const ui = {
   bar: $('#machine-bar'),
   count: $('#machine-count'),
   split: $('#machine-split'),
   source: document.querySelector<HTMLTemplateElement>('#machine-source'),
-  buttons: [...document.querySelectorAll<HTMLButtonElement>('.mode-switch button')],
 };
+
+function updateCount(): void {
+  if (ui.count) ui.count.textContent = countTokens().toLocaleString('en-US');
+}
 
 /* -------------------------------- divider --------------------------------- */
 
 /**
- * Once the page has flipped, both faces turn forward again and a vertical
- * divider decides who shows where: human text to its left, tokens to its
- * right (each face is clipped at the divider's x, see .mk-split in
- * global.css). It opens a quarter of the way across the content column —
- * not the viewport, whose outer quarter on a wide screen is empty margin —
- * so the tokens have a readable anchor beside them. Drag it, arrow-key it,
- * double-click to reset.
+ * The divider is the only control. Docked at the right edge, the whole page
+ * is human and nothing is built. Drag it left — or click its handle — and
+ * everything right of the line is the page as a language model receives it.
+ * "Machine mode" is simply "the divider isn't docked". A click opens it a
+ * quarter of the way across the content column (not the viewport, whose
+ * outer quarter on a wide screen is empty margin); a click, Esc, or the
+ * bar's exit docks it again. The position persists across navigation in
+ * sessionStorage['mk-split'] and is cleared on a full reload, like the theme.
  */
-const FLIP_MS = 950;
-/** divider position as a fraction of the viewport width */
-let splitAt = 0;
+const DOCKED = 1;
+const STORE = 'mk-split';
+/** divider position as a fraction of the content area's width */
+let splitAt = DOCKED;
 let splitFrame = 0;
-/** once the visitor moves the divider, resizes keep their fraction */
+/** once the visitor drags or arrow-keys it, resizes keep their fraction */
 let splitMoved = false;
+let engaged = false;
+
+const viewWidth = () => document.documentElement.clientWidth || window.innerWidth;
 
 /** a quarter of the way across the wide content column (the nav's) */
 function splitDefault(): number {
   const column = document.querySelector('.nav-inner')?.getBoundingClientRect();
-  if (!column || !window.innerWidth) return 0.25;
-  return (column.left + column.width * 0.25) / window.innerWidth;
+  if (!column || !viewWidth()) return 0.25;
+  return (column.left + column.width * 0.25) / viewWidth();
 }
-/** bumps on every mode change, so a late step from an old one does nothing */
-let turnId = 0;
 
 function setSplit(fraction: number): void {
-  splitAt = Math.min(1, Math.max(0, fraction));
-  document.documentElement.style.setProperty('--mk-split', `${(splitAt * window.innerWidth).toFixed(1)}px`);
+  splitAt = Math.min(DOCKED, Math.max(0, fraction));
+  const px = splitAt * viewWidth();
+  document.documentElement.style.setProperty('--mk-split', `${px.toFixed(2)}px`);
   if (ui.split) {
     const pct = Math.round(splitAt * 100);
     ui.split.setAttribute('aria-valuenow', String(pct));
     ui.split.setAttribute('aria-valuetext', `${pct}% human-readable`);
+    ui.split.classList.toggle('docked', splitAt >= DOCKED);
+  }
+  setEngaged(splitAt < DOCKED);
+}
+
+/** crossing the docked edge turns the token side on or off */
+function setEngaged(on: boolean): void {
+  if (on === engaged) return;
+  engaged = on;
+  machineOn = on;
+  if (on) {
+    build();
+    place(); // cheap layout reads; catches any shift since the build
+    tokenizeLiveSurfaces();
+    syncAnimations();
+  }
+  document.body.classList.toggle('machine-active', on);
+  if (ui.bar) ui.bar.hidden = !on;
+  updateCount();
+}
+
+function saveSplit(): void {
+  try {
+    if (!engaged) sessionStorage.removeItem(STORE);
+    else sessionStorage.setItem(STORE, splitMoved ? splitAt.toFixed(4) : 'default');
+  } catch {
+    /* storage unavailable — this page only */
   }
 }
 
@@ -451,6 +536,7 @@ function slideSplit(to: number, ms: number): void {
   cancelAnimationFrame(splitFrame);
   if (reducedMotion.matches) {
     setSplit(to);
+    saveSplit();
     return;
   }
   const from = splitAt;
@@ -459,162 +545,94 @@ function slideSplit(to: number, ms: number): void {
     const k = Math.min(1, (now - start) / ms);
     setSplit(from + (to - from) * (1 - (1 - k) ** 3));
     if (k < 1) splitFrame = requestAnimationFrame(step);
+    else saveSplit();
   };
   splitFrame = requestAnimationFrame(step);
+}
+
+function openSplit(): void {
+  splitMoved = false;
+  slideSplit(splitDefault(), 650);
+}
+
+function dockSplit(): void {
+  slideSplit(DOCKED, 450);
 }
 
 function initDivider(): void {
   const handle = ui.split;
   if (!handle) return;
+  handle.hidden = false;
 
-  const fromPointer = (e: PointerEvent) => setSplit(e.clientX / window.innerWidth);
+  // build ahead of the first drag, so the drag itself never hitches
+  handle.addEventListener('pointerenter', build);
+  handle.addEventListener('focus', build);
+
+  let drag: { id: number; x: number; moved: boolean } | null = null;
   handle.addEventListener('pointerdown', (e) => {
     cancelAnimationFrame(splitFrame);
-    splitMoved = true;
     handle.setPointerCapture(e.pointerId);
+    drag = { id: e.pointerId, x: e.clientX, moved: false };
     document.body.classList.add('mk-dragging');
-    fromPointer(e);
   });
   handle.addEventListener('pointermove', (e) => {
-    if (handle.hasPointerCapture(e.pointerId)) fromPointer(e);
+    if (!drag || drag.id !== e.pointerId) return;
+    if (!drag.moved && Math.abs(e.clientX - drag.x) < 4) return;
+    drag.moved = true;
+    splitMoved = true;
+    setSplit(e.clientX / viewWidth());
   });
   const release = (e: PointerEvent) => {
+    if (!drag || drag.id !== e.pointerId) return;
     if (handle.hasPointerCapture(e.pointerId)) handle.releasePointerCapture(e.pointerId);
     document.body.classList.remove('mk-dragging');
+    const wasClick = !drag.moved && e.type === 'pointerup';
+    drag = null;
+    if (wasClick) {
+      if (engaged) dockSplit();
+      else openSplit();
+    } else {
+      saveSplit();
+    }
   };
   handle.addEventListener('pointerup', release);
   handle.addEventListener('pointercancel', release);
-  handle.addEventListener('dblclick', () => {
-    splitMoved = false;
-    slideSplit(splitDefault(), 350);
-  });
 
   handle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (engaged) dockSplit();
+      else openSplit();
+      return;
+    }
     const step = e.shiftKey ? 0.1 : 0.02;
     const moves: Record<string, number> = {
       ArrowLeft: splitAt - step,
       ArrowRight: splitAt + step,
       Home: 0,
-      End: 1,
+      End: DOCKED,
     };
     if (e.key in moves) {
       e.preventDefault();
       cancelAnimationFrame(splitFrame);
       splitMoved = true;
       setSplit(moves[e.key]!);
+      saveSplit();
     }
   });
 
   window.addEventListener(
     'resize',
-    () => {
-      if (!document.body.classList.contains('mk-split')) return;
-      setSplit(splitMoved ? splitAt : splitDefault());
-    },
+    () => setSplit(engaged && !splitMoved ? splitDefault() : splitAt),
     { passive: true }
   );
-}
-
-function updateCount(): void {
-  if (ui.count) ui.count.textContent = countTokens().toLocaleString('en-US');
-}
-
-/** Rotate each block about the viewport's middle, so tall blocks don't swing. */
-function aimRotation(): void {
-  const mid = window.innerHeight / 2;
-  for (const { front, back } of faces) {
-    const y = `${(mid - (layoutBox(front).top - window.scrollY)).toFixed(0)}px`;
-    front.style.setProperty('--mk-oy', y);
-    back.style.setProperty('--mk-oy', y);
-  }
-}
-
-export function setAudience(mode: Audience, animate = true): void {
-  const active = mode === 'machine';
-  for (const btn of ui.buttons) {
-    btn.setAttribute('aria-pressed', String(btn.dataset.mode === mode));
-  }
-  try {
-    // session-scoped like the theme: survives navigation, the <head> script
-    // clears it on a full reload
-    sessionStorage.setItem('audience', mode);
-  } catch {
-    /* storage unavailable — this page only */
-  }
-  machineOn = active;
-  if (active) {
-    build();
-    place(); // cheap layout reads; catches any shift since the build
-    tokenizeLiveSurfaces();
-  }
-  if (!backs) return;
-
-  const turn = ++turnId;
-  const body = document.body;
-  aimRotation();
-  const instant = !animate || reducedMotion.matches;
-  body.classList.toggle('mk-instant', instant);
-  if (ui.bar) ui.bar.hidden = !active;
-  updateCount();
-
-  if (instant) {
-    // no turn to animate: swap now, in the same frame the pending veil lifts
-    body.classList.toggle('machine-active', active);
-    body.classList.toggle('mk-split', active);
-    if (ui.split) ui.split.hidden = !active;
-    setSplit(active ? splitDefault() : 0);
-  } else if (active) {
-    // flip to the token side, then open the divider on a quarter of human text
-    cancelAnimationFrame(splitFrame);
-    splitMoved = false;
-    setSplit(0);
-    // let a freshly built back paint face-down before it turns over; the
-    // divider timer starts from inside that frame, so in a background tab
-    // (frames paused, timers not) it can't open before the flip has begun
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        if (turn !== turnId) return;
-        body.classList.add('machine-active');
-        window.setTimeout(() => {
-          if (turn !== turnId) return;
-          // at 0 the front is fully clipped, so turning it forward is invisible
-          body.classList.add('mk-split');
-          if (ui.split) ui.split.hidden = false;
-          slideSplit(splitDefault(), 650);
-        }, FLIP_MS);
-      })
-    );
-  } else {
-    // close the human side, then flip the whole page back (on a timer, not
-    // the slide's end, so grabbing the divider mid-slide can't strand it)
-    if (ui.split) ui.split.style.pointerEvents = 'none';
-    slideSplit(0, 300);
-    window.setTimeout(() => {
-      if (ui.split) ui.split.style.pointerEvents = '';
-      if (turn !== turnId) return;
-      cancelAnimationFrame(splitFrame);
-      setSplit(0);
-      if (ui.split) ui.split.hidden = true;
-      // swap the forward-facing front back to face-down without a transition…
-      body.classList.add('mk-instant');
-      body.classList.remove('mk-split');
-      void body.offsetWidth;
-      body.classList.remove('mk-instant');
-      // …so this is the only visible move
-      body.classList.remove('machine-active');
-    }, 320);
-  }
-  document.documentElement.classList.remove('mk-pending');
 }
 
 export function initMachineMode(toast: (html: string, ms?: number) => void): void {
   watchLiveSurfaces();
   initDivider();
-  for (const btn of ui.buttons) {
-    btn.addEventListener('click', () => setAudience(btn.dataset.mode as Audience));
-  }
 
-  $('#machine-exit')?.addEventListener('click', () => setAudience('human'));
+  $('#machine-exit')?.addEventListener('click', dockSplit);
   $('#machine-copy')?.addEventListener('click', async () => {
     const text = (ui.source?.content.textContent ?? '').trim();
     try {
@@ -626,17 +644,26 @@ export function initMachineMode(toast: (html: string, ms?: number) => void): voi
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && document.body.classList.contains('machine-active')) {
-      setAudience('human');
-    }
+    if (e.key === 'Escape' && engaged) dockSplit();
   });
 
+  // restore the divider carried over from the previous page, without motion
   let saved: string | null = null;
   try {
-    saved = sessionStorage.getItem('audience');
-    localStorage.removeItem('audience'); // stale key from when it persisted forever
+    saved = sessionStorage.getItem(STORE);
+    // stale keys from the toggle era
+    sessionStorage.removeItem('audience');
+    localStorage.removeItem('audience');
   } catch {
     /* ignore */
   }
-  if (saved === 'machine') setAudience('machine', false);
+  if (saved === 'default') {
+    setSplit(splitDefault());
+  } else if (saved && Number.isFinite(Number(saved))) {
+    splitMoved = true;
+    setSplit(Number(saved));
+  } else {
+    setSplit(DOCKED);
+  }
+  document.documentElement.classList.remove('mk-pending');
 }

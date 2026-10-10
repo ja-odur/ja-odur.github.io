@@ -10,15 +10,16 @@ const doc = machineContext();
   id="machine-split"
   role="separator"
   aria-orientation="vertical"
-  aria-label="Divider between the human-readable page and its tokens"
+  aria-label="Machine view: drag left, or press Enter, to see this page as a language model receives it"
   aria-valuemin="0"
   aria-valuemax="100"
-  aria-valuenow="25"
+  aria-valuenow="100"
   tabindex="0"
   hidden
 >
   <span class="split-label split-human" aria-hidden="true">human</span>
   <span class="split-label split-machine" aria-hidden="true">tokens</span>
+  <span class="split-label split-hint" aria-hidden="true">machine view</span>
   <span class="split-grip" aria-hidden="true"></span>
 </div>
 
@@ -37,8 +38,10 @@ const doc = machineContext();
 </div>
 
 <style>
-  /* the divider: a zero-width fixed track moved by --mk-split; the hit area
-     is 20px wide around the 1px line */
+  /* the divider: a fixed track moved by --mk-split; the hit area is 20px
+     wide around the 1px line. Docked at the right edge it shows only its
+     grip (and only the grip takes the pointer, so the strip never blocks
+     content near the edge). */
   .machine-split {
     position: fixed;
     top: var(--nav-height);
@@ -69,6 +72,48 @@ const doc = machineContext();
 
   .machine-split:focus-visible {
     outline: none;
+  }
+
+  .machine-split.docked {
+    margin-left: -26px;
+    pointer-events: none;
+  }
+
+  .machine-split.docked::before,
+  .machine-split.docked .split-human,
+  .machine-split.docked .split-machine {
+    display: none;
+  }
+
+  .machine-split.docked .split-grip {
+    pointer-events: auto;
+    width: 16px;
+    height: 56px;
+    cursor: pointer;
+  }
+
+  .split-hint {
+    display: none;
+  }
+
+  .machine-split.docked .split-hint {
+    display: block;
+    top: 50%;
+    right: calc(50% + 0.85rem);
+    transform: translateY(-50%);
+    color: var(--text-faint);
+    opacity: 0;
+    transition: opacity var(--speed) var(--ease), color var(--speed) var(--ease);
+  }
+
+  .machine-split.docked:hover .split-hint,
+  .machine-split.docked:focus-visible .split-hint {
+    opacity: 1;
+    color: var(--accent);
+  }
+
+  .split-hint::before {
+    content: '← ';
   }
 
   .machine-split:focus-visible .split-grip,

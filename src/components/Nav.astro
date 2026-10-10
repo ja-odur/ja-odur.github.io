@@ -14,7 +14,7 @@ const links = [
 ];
 ---
 
-<header class="site-nav" data-devnote="Nav.astro — zero-JS until you flip the switch">
+<header class="site-nav" data-devnote="Nav.astro — zero JS; machine mode lives in the divider">
   <div class="container container--wide nav-inner">
     <a class="brand mono" href="/" aria-label="Joseph Odur — home">
       <span class="brand-prompt" aria-hidden="true">~/</span>odur
@@ -41,13 +41,6 @@ const links = [
         </li>
       </ul>
     </nav>
-
-    <div class="mode-switch mono" role="group" aria-label="Audience">
-      <button type="button" data-mode="human" aria-pressed="true">human</button>
-      <button type="button" data-mode="machine" aria-pressed="false">
-        machine
-      </button>
-    </div>
   </div>
 </header>
 
@@ -117,46 +110,6 @@ const links = [
     font-size: 0.8em;
   }
 
-  .mode-switch {
-    display: flex;
-    padding: 2px;
-    border: 1px solid var(--border-strong);
-    border-radius: 999px;
-    font-size: 0.75rem;
-  }
-
-  .mode-switch button {
-    padding: 0.15rem 0.7rem;
-    border-radius: 999px;
-    color: var(--text-faint);
-    transition: color var(--speed) var(--ease),
-      background var(--speed) var(--ease);
-  }
-
-  .mode-switch button[aria-pressed='true'] {
-    background: var(--bg-raised);
-    color: var(--text);
-    box-shadow: inset 0 0 0 1px var(--border-strong);
-  }
-
-  /* machine mode restored from storage: show it selected before the script
-     has run (see mk-pending in BaseLayout) */
-  :global(html.mk-pending) .mode-switch button[data-mode='human'] {
-    background: none;
-    color: var(--text-faint);
-    box-shadow: none;
-  }
-
-  :global(html.mk-pending) .mode-switch button[data-mode='machine'] {
-    background: var(--bg-raised);
-    color: var(--text);
-    box-shadow: inset 0 0 0 1px var(--border-strong);
-  }
-
-  .mode-switch button:hover {
-    color: var(--accent);
-  }
-
   @media (max-width: 640px) {
     .nav-inner {
       gap: 0.5rem;
@@ -172,17 +125,6 @@ const links = [
 
     .brand {
       font-size: 0.875rem;
-    }
-  }
-
-  @media (max-width: 460px) {
-    /* github lives in the footer too; drop it to keep the nav on one line */
-    .nav-links li:last-child {
-      display: none;
-    }
-
-    .mode-switch button {
-      padding-inline: 0.5rem;
     }
   }
 </style>

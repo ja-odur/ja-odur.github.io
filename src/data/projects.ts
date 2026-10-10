@@ -81,7 +81,7 @@ export const projects: Project[] = [
     problem:
       'A portfolio should load instantly, read well, and rank — and have at least one feature nobody asked for. Ask it to speak machine.',
     build:
-      'Astro static site, zero framework JavaScript, dark-first design system, structured data throughout, deployed to GitHub Pages. Try the “machines” toggle in the header.',
+      'Astro static site, zero framework JavaScript, dark-first design system, structured data throughout, deployed to GitHub Pages. Pull the handle on the right edge of the screen to see it the way a model does.',
     stack: ['Astro', 'TypeScript', 'CSS', 'GitHub Pages'],
     link: 'https://github.com/ja-odur/ja-odur.github.io',
     featured: true,

@@ -351,84 +351,41 @@ kbd {
   }
 }
 
-/* ------------------------ machine mode: the flip side --------------------- */
+/* -------------------- machine mode: the divider ---------------------- */
 
 /* Built by machine-mode.ts on first use. Every top-level block has a cloned
-   back face positioned over it; both faces turn together. The `html.js body`
-   prefix outranks .scroll-reveal's own transform and transition. */
+   back face positioned exactly over it, with its words replaced by tokens.
+   The divider at --mk-split (a viewport x) decides who shows where: human
+   text to its left, tokens to its right. --mk-left is each face's own left
+   edge, so every block cuts at the same line and the two halves meet on the
+   same pixel. Hit-testing follows clip-path, so links work on whichever
+   side of the line you click. The vertical -100vh insets keep anything that
+   overflows a block unclipped. Docked (the default) the backs are hidden
+   and the fronts unclipped, so a human visit renders exactly as before. */
 .mk-backs {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   pointer-events: none;
+  visibility: hidden;
 }
 
-html.js body .mk-front,
-html.js body .mk-back {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  transform-origin: 50% var(--mk-oy, 50%);
-  /* backface-visibility misses descendants on their own compositing layers
-     (the hero's animated headline showed through mirrored), so each face
-     also swaps visibility at the halfway point, when it is edge-on */
-  transition:
-    transform 0.9s cubic-bezier(0.65, 0.05, 0.25, 1),
-    opacity 0.6s var(--ease),
-    visibility 0s linear 0.45s;
+body.machine-active .mk-backs {
+  visibility: visible;
 }
 
+/* the prefix outranks component styles on the cloned block (.hero is
+   position: relative, .site-footer has a margin) */
 html.js body .mk-back {
   position: absolute;
   margin: 0;
-  transform: perspective(2200px) rotateY(-180deg);
-  visibility: hidden;
-}
-
-html.js body.machine-active .mk-front {
-  transform: perspective(2200px) rotateY(180deg);
-  visibility: hidden;
-  pointer-events: none;
-}
-
-html.js body.machine-active .mk-back {
-  transform: perspective(2200px) rotateY(0deg);
-  visibility: visible;
   pointer-events: auto;
+  clip-path: inset(-100vh 0 -100vh calc(var(--mk-split, 100vw) - var(--mk-left, 0px)));
 }
 
-html.js body.mk-instant .mk-front,
-html.js body.mk-instant .mk-back {
-  transition: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.js body .mk-front,
-  html.js body .mk-back {
-    transition: none;
-  }
-}
-
-/* split state — machine-mode.ts adds .mk-split once the flip has landed:
-   both faces turn forward again and the divider at --mk-split decides who
-   shows where (human left, tokens right). --mk-left is each face's own left
-   edge, so every block clips at the same viewport x. Hit-testing follows
-   clip-path, so links work on whichever side of the line you click. The
-   vertical -100vh insets keep anything overflowing a block unclipped. */
-html.js body.mk-split .mk-front,
-html.js body.mk-split .mk-back {
-  transform: none;
-  visibility: visible;
-  pointer-events: auto;
-  transition: opacity 0.6s var(--ease);
-}
-
-html.js body.mk-split .mk-front {
-  clip-path: inset(-100vh calc(100% - var(--mk-split, 0px) + var(--mk-left, 0px)) -100vh 0);
-}
-
-html.js body.mk-split .mk-back {
-  clip-path: inset(-100vh 0 -100vh calc(var(--mk-split, 0px) - var(--mk-left, 0px)));
+body.machine-active .mk-front {
+  clip-path: inset(-100vh calc(100% - var(--mk-split, 100vw) + var(--mk-left, 0px)) -100vh 0);
 }
 
 body.mk-dragging {
@@ -436,7 +393,7 @@ body.mk-dragging {
   user-select: none;
 }
 
-/* set by the <head> script when machine mode was left on; machine-mode.ts
+/* set by the <head> script when the divider was left open; machine-mode.ts
    removes it once the token side is up. The delayed unhide is a safety net
    so a failed script can never leave the page blank. */
 html.mk-pending #main,
@@ -674,7 +631,6 @@ body.dev-mode [data-devnote]::before {
   }
 
   .mk-front {
-    transform: none !important;
     clip-path: none !important;
   }
 

@@ -4,7 +4,7 @@ import { projects } from './projects';
 import { skills, interests } from './skills';
 
 /**
- * The document rendered in "For Machines" mode and served at /llms.txt.
+ * The document behind machine mode's "copy context" and served at /llms.txt.
  * Built from the same data as the human pages, so it can never drift.
  */
 export function machineContext(): string {

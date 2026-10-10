@@ -58,7 +58,7 @@ src/
   pages/          index, projects, resume, 404, llms.txt.ts (endpoint)
   scripts/
     enhance.ts     entry point: easter eggs, boots machine mode (vanilla TS, PE only)
-    machine-mode.ts  the flip side: tokenizer, back faces, live mirror
+    machine-mode.ts  the divider: tokenizer, back faces, live mirror
   styles/global.css  tokens, reset, print styles, easter-egg layers
 public/           CNAME, robots.txt, favicon.svg, og.png, jokes.json, icons
 tools/            one-off maintenance scripts (generate-og.mjs) — not built
@@ -114,7 +114,7 @@ Read these before touching the relevant area — each one cost real debugging.
 - **Fonts are self-hosted** via `@fontsource-variable/inter` (imported in
   BaseLayout). No Google Fonts network calls. Mono is the system stack.
 - **Every animation has a `prefers-reduced-motion` fallback** (hero typing,
-  machine-mode flip, DLX solve, blink). Match this for any new motion.
+  machine-mode divider slide, DLX solve, blink). Match this for any new motion.
 - **og.png is a generated static asset** (1200×630). Regenerate with
   `node tools/generate-og.mjs` when the name/title/tagline changes — there is no
   build step that does so automatically. The generator uses `sharp` (transitive
@@ -122,61 +122,69 @@ Read these before touching the relevant area — each one cost real debugging.
 
 ## "For Machines" mode
 
-Nav toggle `[ human | machine ]`. The page flips over, in place, to the side a
-language model receives: same layout, every word replaced by its token IDs,
-each ID sized to sit exactly where its word was (hover shows the word). A fixed
-bar gives the page's token count, `/llms.txt`, and "copy context" (the
-`machineContext()` doc). Persists like the theme: `sessionStorage['audience']`,
-kept across navigations, cleared on a full reload by the `<head>` script. Esc
-exits. Reduced-motion swaps faces without the turn. This is the feature the owner
-cares most about — treat it as first-class, keep it tasteful (no gimmicks).
-Mechanics are documented at the top of `src/scripts/machine-mode.ts`; the
-gotchas that cost debugging time:
+A vertical divider is the only control (there is no nav toggle). Docked at the
+right edge, the page is plain human. Drag it left, or click its grip, and
+everything right of the line is the page as a language model receives it: same
+layout, every word replaced in place by its token IDs, each ID sized to sit
+exactly where its word was (hover shows the word). A click opens it a quarter
+of the way across the content column; a click, Esc, the bar's exit, or End
+docks it. A fixed bar gives the page's token count, `/llms.txt`, and "copy
+context" (the `machineContext()` doc). The position persists like the theme —
+`sessionStorage['mk-split']` (a fraction, or `default`), kept across
+navigations, cleared on a full reload by the `<head>` script. This is the
+feature the owner cares most about — treat it as first-class, keep it tasteful
+(no gimmicks). Mechanics are documented at the top of
+`src/scripts/machine-mode.ts`; the gotchas that cost debugging time:
 
+- **The seam must be pixel-exact.** Both layers are clipped at `--mk-split` (a
+  viewport x) minus each block's own `--mk-left`, so every block cuts at the
+  same line; hit-testing follows clip-path, so links work on either side.
+  Anything that differs between the layers shows at the line, hence the next
+  three points.
 - **Backs are clones, not wrappers.** Each block in `#main` (+ the footer) gets
-  an absolutely positioned clone in `.mk-backs`; front and back rotate
-  independently. Never wrap or move the real blocks — re-inserting a node
-  restarts its CSS animations (the hero's reveal) mid-flip.
-- **Place backs from layout, never a transformed rect.** `layoutBox()` ignores
-  transforms: a section not yet scrolled into view is still slid down 20px by
-  scroll-reveal, and measuring that left its tokens a line off the human text
-  once it settled (visible at the divider). Backs also re-place on font load
+  an absolutely positioned clone in `.mk-backs`. Never wrap or move the real
+  blocks — re-inserting a node restarts its CSS animations (the hero's reveal).
+- **Place backs from layout, never a transformed rect.** `layoutBox()` removes
+  the scroll-reveal slide (a pure translation) from the exact rect; an
+  untransformed measurement put tokens 20px off, and whole-pixel offset* left a
+  half-pixel seam on centered columns. Backs keep the same scroll-reveal class
+  as their fronts, so both slide in together. They also re-place on font load
   and on every activation — a late web font re-wraps a line and shifts every
   block below, and ResizeObserver only reports while the page is rendering.
-- **Both faces also swap `visibility` at the halfway point.** Descendants on
-  their own compositing layers ignore the parent's `backface-visibility` — the
-  hero headline showed through mirrored without it.
+- **The back mirrors the live front synchronously** (MutationObserver, flushed
+  in the same task — a frame's lag showed old text on one side of the seam):
+  text is re-tokenized (the hero typing riff types in tokens), classes and the
+  root's inline style copied (scroll-reveal, caret, hero glow), and cloned CSS
+  animations are set to their originals' clocks (`syncAnimations()`). Pointer
+  moves and button clicks on the back are forwarded to the front, so the glow
+  and the easter eggs keep working.
+- **Known sub-pixel residue: kerning.** Splitting a word into token spans drops
+  the kerning pair at the split, so glyph positions inside a line can drift up
+  to ~0.4px from the front's. Block boxes and line breaks match exactly. Only
+  `font-kerning: none` on the human page would remove it — not worth the type.
 - **One `.mk-run` span per text node.** Loose token spans inside a flex/grid
   parent (the hero kicker) each become an item and stop wrapping, which
   overflowed the page on phones.
-- **The back mirrors the live front** via a MutationObserver: text changes are
-  re-tokenized (the hero typing riff types in tokens), class changes copied
-  (scroll-reveal, caret). Back buttons forward clicks to their front twins.
-- **After the flip, a divider splits the page** — human text left, tokens
-  right. Both faces turn forward again (`.mk-split`) and each is clipped at
-  `--mk-split` (a viewport x) minus its own `--mk-left`, so every block cuts
-  at the same line; hit-testing follows clip-path, so links work on either
-  side. It opens a quarter of the way across the content column (the nav's),
-  not the viewport — on a wide screen the viewport's first quarter is empty
-  margin. Drag / arrow keys / double-click to reset. Exit closes the divider,
-  then flips back (timer-driven, so a mid-slide grab can't strand it).
+- **Docked, only the grip takes the pointer.** The divider's 20px hit strip
+  would otherwise block content at the right edge. Backs are built when the
+  grip is first hovered or focused, so the first drag never hitches.
 - **`mk-pending` stops the plain-text flash on navigation.** enhance.ts runs
   after first paint, so the `<head>` script adds `html.mk-pending` when
-  `sessionStorage['audience']` is `machine`; CSS hides `#main` + footer (and
-  pre-selects the nav switch) until `setAudience()` removes it. A 2.5s CSS
-  unhide is the safety net if the script never runs — keep it.
-- **Terminal output and toasts (jokes) are tokenized in place,** not flipped —
-  the terminal is a modal dialog, toasts are transient. Their token styling is
-  scoped to `body.machine-active .mk-live`, so the same spans read as plain
-  text in human mode. The terminal input stays plain on purpose (the human
-  side of the conversation).
+  `sessionStorage['mk-split']` is set; CSS hides `#main` + footer until the
+  token side is up. A 2.5s CSS unhide is the safety net if the script never
+  runs — keep it.
+- **Terminal output and toasts (jokes) are tokenized in place,** whenever the
+  divider is open — the terminal is a modal dialog, toasts are transient, so
+  neither has a back. Their token styling is scoped to
+  `body.machine-active .mk-live`, so the same spans read as plain text once
+  docked. The terminal input stays plain on purpose (the human side).
 - **Back-face words hide with `visibility`, live ones with `opacity`.** Under
   the terminal's `backdrop-filter`, Chrome painted `opacity: 0` back-face
   words anyway; `opacity` stays on live surfaces so screen readers keep the
   terminal text.
 - **The tokenizer is illustrative** (hash IDs into a cl100k-sized vocabulary),
-  deterministic per string. Backs are built client-side on first flip only —
-  crawlers never see them; `/llms.txt` stays the real machine document.
+  deterministic per string. Backs are client-side only — crawlers never see
+  them; `/llms.txt` stays the real machine document.
 
 ## Easter eggs (maintainer reference — keep OUT of the README)
 
