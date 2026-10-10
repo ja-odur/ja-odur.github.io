@@ -164,24 +164,38 @@ function tokenizeTree(root: HTMLElement): HTMLElement[] {
   return made;
 }
 
-/** Size each ID to the word it replaces: shrink the font, then condense. */
+/** below this, an ID squeezed into its word is unreadable — show the chip only */
+const MIN_CONDENSE = 0.3;
+let measureCtx: CanvasRenderingContext2D | null = null;
+
+/**
+ * Fit each ID to the word it replaces without changing its size: the ID is
+ * drawn in the word's own font, size and weight (so the two sides of the
+ * divider read at the same scale), and only condensed horizontally when it
+ * is wider than the word. Widths are measured in that actual font.
+ */
 function fit(tokens: HTMLElement[]): void {
-  const fontSize = new Map<Element, number>();
+  measureCtx ??= document.createElement('canvas').getContext('2d');
+  const fonts = new Map<Element, string>();
   const measured = tokens.map((tok) => {
     const parent = tok.parentElement!;
-    if (!fontSize.has(parent)) fontSize.set(parent, parseFloat(getComputedStyle(parent).fontSize));
-    return [tok.offsetWidth, fontSize.get(parent)!] as const;
+    if (!fonts.has(parent)) {
+      const cs = getComputedStyle(parent);
+      fonts.set(parent, `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`);
+    }
+    return [tok.offsetWidth, fonts.get(parent)!] as const;
   });
   tokens.forEach((tok, i) => {
-    const [w, em] = measured[i]!;
+    const [w, font] = measured[i]!;
     if (!w) return; // not laid out (a closed dialog); fitted when it opens
-    const chars = tok.dataset.id!.length;
-    // mono digits are ~0.6em wide; allow condensing to 80% before shrinking
-    const size = Math.min(em * 0.62, Math.max(6, w / (chars * 0.6 * 0.8)));
-    const condense = Math.min(1, w / (chars * 0.6 * size));
-    tok.style.setProperty('--mk-fs', `${size.toFixed(1)}px`);
-    tok.style.setProperty('--mk-sx', condense.toFixed(2));
-    tok.classList.toggle('mk-t--tiny', condense < 0.5);
+    let natural = tok.dataset.id!.length * 0.6 * parseFloat(font.split(' ')[2] ?? '16');
+    if (measureCtx) {
+      measureCtx.font = font;
+      natural = measureCtx.measureText(tok.dataset.id!).width;
+    }
+    const condense = Math.min(1, w / natural);
+    tok.style.setProperty('--mk-sx', condense.toFixed(3));
+    tok.classList.toggle('mk-t--tiny', condense < MIN_CONDENSE);
   });
 }
 

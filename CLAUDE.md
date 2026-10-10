@@ -125,8 +125,10 @@ Read these before touching the relevant area — each one cost real debugging.
 A vertical divider is the only control (there is no nav toggle). Docked at the
 right edge, the page is plain human. Drag it left, or click its grip, and
 everything right of the line is the page as a language model receives it: same
-layout, every word replaced in place by its token IDs, each ID sized to sit
-exactly where its word was (hover shows the word). A click opens it a quarter
+layout, every word replaced in place by its token IDs — each ID in the word's
+own font, size and weight, on its baseline, condensed horizontally to the
+word's width so text and tokens meet at the divider at the same scale (hover
+shows the word; IDs that would need less than 30% width show the chip only). A click opens it a quarter
 of the way across the content column; a click, Esc, the bar's exit, or End
 docks it. A fixed bar gives the page's token count, `/llms.txt`, and "copy
 context" (the `machineContext()` doc). The position persists like the theme —
