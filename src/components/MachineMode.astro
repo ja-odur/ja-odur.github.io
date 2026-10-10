@@ -17,8 +17,8 @@ const doc = machineContext();
   tabindex="0"
   hidden
 >
-  <span class="split-label split-human" aria-hidden="true">human</span>
-  <span class="split-label split-machine" aria-hidden="true">tokens</span>
+  <span class="split-label split-human" aria-hidden="true">humans</span>
+  <span class="split-label split-machine" aria-hidden="true">machines</span>
   <span class="split-label split-hint" aria-hidden="true">machine view</span>
   <span class="split-grip" aria-hidden="true"></span>
 </div>
@@ -145,6 +145,23 @@ const doc = machineContext();
     font-size: 0.6875rem;
     letter-spacing: 0.04em;
     white-space: nowrap;
+  }
+
+  /* the open divider stays a bare line; its labels appear while you hover,
+     focus or drag it */
+  .split-human,
+  .split-machine {
+    opacity: 0;
+    transition: opacity var(--speed) var(--ease);
+  }
+
+  .machine-split:hover .split-human,
+  .machine-split:hover .split-machine,
+  .machine-split:focus-visible .split-human,
+  .machine-split:focus-visible .split-machine,
+  :global(body.mk-dragging) .split-human,
+  :global(body.mk-dragging) .split-machine {
+    opacity: 1;
   }
 
   .split-human {
