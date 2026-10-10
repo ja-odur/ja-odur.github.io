@@ -132,7 +132,7 @@ everything right of the line is the page as a language model receives it: same
 layout, every word replaced in place by its token IDs — each ID in the word's
 own font, size and weight, on its baseline, condensed horizontally to the
 word's width so text and tokens meet at the divider at the same scale (hover
-shows the word; IDs that would need less than 30% width show the chip only). A click opens it a quarter
+shows the word). A click opens it a quarter
 of the way across the content column; a click, Esc, the bar's exit, or End
 returns it to rest. A fixed bar gives the page's token count, `/llms.txt`, and "copy
 context" (the `machineContext()` doc). The position persists like the theme —
@@ -191,6 +191,17 @@ feature the owner cares most about — treat it as first-class, keep it tasteful
   the terminal's `backdrop-filter`, Chrome painted `opacity: 0` back-face
   words anyway; `opacity` stays on live surfaces so screen readers keep the
   terminal text.
+- **Every token shows an ID; that's what the ID bands are for.** At the
+  word's own size a five-digit ID can't fit "a" or a comma, so IDs are banded
+  the way a real vocabulary is (frequent pieces merged first, small IDs):
+  ASCII punctuation uses the real byte-token IDs ("," 11, "." 13), other
+  symbols and single characters two digits, common words three to four,
+  rare fragments five. Pieces are at least three letters (a one-letter tail
+  read as a missing token). In `fit()`, a token borrows half of each
+  adjacent space, never more, so neighbours can't collide; one still too
+  narrow (a paragraph-ending period) is laid out with its whole word, the
+  word's IDs sharing its width in proportion. `MIN_CONDENSE` (30%) is now a
+  floor no current page reaches.
 - **The tokenizer is illustrative** (hash IDs into a cl100k-sized vocabulary),
   deterministic per string. Backs are client-side only — crawlers never see
   them; `/llms.txt` stays the real machine document.

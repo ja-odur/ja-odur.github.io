@@ -447,13 +447,14 @@ body.machine-active .mk-live .mk-x {
 /* the ID inherits the word's font, size and weight, and sits on its
    baseline: top: 0 with line-height normal puts the glyphs exactly where the
    word's would be (the inline's content area), so text and tokens meet at
-   the divider at the same scale. Width is fitted by scaleX alone. */
+   the divider at the same scale. Width is fitted by scaleX alone, plus a
+   small --mk-dx slide into a neighbouring space (see fit()). */
 :is(.mk-back, body.machine-active .mk-live) .mk-t::after {
   content: attr(data-id);
   position: absolute;
   left: 50%;
   top: 0;
-  transform: translateX(-50%) scaleX(var(--mk-sx, 1));
+  transform: translateX(calc(-50% + var(--mk-dx, 0px))) scaleX(var(--mk-sx, 1));
   font: inherit;
   line-height: normal;
   letter-spacing: 0;

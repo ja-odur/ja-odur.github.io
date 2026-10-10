@@ -27,8 +27,9 @@
  *   the real machine-readable document.
  *
  * The tokenizer is illustrative, not a real BPE: common words stay whole,
- * longer words split into deterministic 2–5 character pieces, and IDs are a
- * hash into a cl100k-sized vocabulary. Same text → same IDs, every visit.
+ * longer words split into deterministic 3–5 character pieces, and IDs are a
+ * hash into a cl100k-sized vocabulary, banded by how common the piece is
+ * (see tokenId). Same text → same IDs, every visit.
  */
 
 interface Face {
@@ -68,6 +69,26 @@ function hash(s: string): number {
   return h >>> 0;
 }
 
+/**
+ * A plausible ID for a piece. A real BPE vocabulary merges frequent pieces
+ * first, so they get small IDs — single characters and punctuation sit in
+ * the first few hundred, common words in the low thousands, rare fragments
+ * out to ~100k. Mirroring that keeps short tokens' IDs short enough to fit
+ * them at the word's own size.
+ */
+function tokenId(piece: string, lead: string): number {
+  const h = hash(lead + piece);
+  const code = piece.length === 1 ? piece.charCodeAt(0) : 0;
+  // GPT-style byte tokens: printable ASCII "!".."~" are IDs 0–93, so "," is
+  // 11 and "." is 13 — the one place these IDs match a real vocabulary
+  if (code >= 33 && code <= 126 && !/[\p{L}\p{N}]/u.test(piece)) return code - 33;
+  if (!/[\p{L}\p{N}]/u.test(piece)) return 10 + (h % 90); // other symbols (·, —, ’)
+  if (piece.length === 1) return 10 + (h % 90); // single characters
+  if (COMMON.has(piece.toLowerCase())) return 100 + (h % 1900);
+  if (piece.length <= 3) return 1000 + (h % 9000);
+  return 10_000 + (h % (VOCAB - 10_000)); // the long tail
+}
+
 export function tokenize(text: string): Segment[] {
   const out: Segment[] = [];
   let lead = '';
@@ -81,10 +102,13 @@ export function tokenize(text: string): Segment[] {
     let rest = piece;
     let first = true;
     while (rest) {
-      const n = whole ? rest.length : Math.min(rest.length, 2 + (hash(rest) % 4));
+      let n = whole ? rest.length : 3 + (hash(rest) % 3);
+      // no stray one- or two-letter tails: they read as missing tokens and a
+      // real merge table rarely ends a word that way
+      if (rest.length - n < 3) n = rest.length;
       const part = rest.slice(0, n);
       // like BPE, a leading space is part of the token
-      out.push({ text: part, id: hash((first ? lead : '') + part) % VOCAB });
+      out.push({ text: part, id: tokenId(part, first ? lead : '') });
       rest = rest.slice(n);
       first = false;
     }
@@ -168,35 +192,99 @@ function tokenizeTree(root: HTMLElement): HTMLElement[] {
 const MIN_CONDENSE = 0.3;
 let measureCtx: CanvasRenderingContext2D | null = null;
 
+/** Width of a whitespace neighbour on the token's own line, else 0. */
+function spaceBeside(node: Node | null, line: number, range: Range): number {
+  if (!node || node.nodeType !== Node.TEXT_NODE || !/^\s+$/.test(node.nodeValue ?? '')) return 0;
+  range.selectNodeContents(node);
+  const r = range.getBoundingClientRect();
+  return Math.abs(r.top - line) < 2 ? r.width : 0;
+}
+
 /**
  * Fit each ID to the word it replaces without changing its size: the ID is
  * drawn in the word's own font, size and weight (so the two sides of the
  * divider read at the same scale), and only condensed horizontally when it
  * is wider than the word. Widths are measured in that actual font.
+ *
+ * A token may borrow half of the space on either side of it — never more,
+ * so two neighbours' IDs can't meet — which is what lets "a" or "is" carry a
+ * readable ID. A token still too narrow (a period ending a paragraph) is
+ * laid out with the rest of its word instead: the word's IDs share the
+ * word's width in proportion, in order, so "Africa." shows both IDs.
  */
 function fit(tokens: HTMLElement[]): void {
   measureCtx ??= document.createElement('canvas').getContext('2d');
   const fonts = new Map<Element, string>();
+  const range = document.createRange();
   const measured = tokens.map((tok) => {
     const parent = tok.parentElement!;
     if (!fonts.has(parent)) {
       const cs = getComputedStyle(parent);
       fonts.set(parent, `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`);
     }
-    return [tok.offsetWidth, fonts.get(parent)!] as const;
+    const r = tok.getBoundingClientRect();
+    return {
+      x: r.left,
+      w: tok.offsetWidth,
+      left: spaceBeside(tok.previousSibling, r.top, range) / 2,
+      right: spaceBeside(tok.nextSibling, r.top, range) / 2,
+      font: fonts.get(parent)!,
+    };
   });
-  tokens.forEach((tok, i) => {
-    const [w, font] = measured[i]!;
-    if (!w) return; // not laid out (a closed dialog); fitted when it opens
-    let natural = tok.dataset.id!.length * 0.6 * parseFloat(font.split(' ')[2] ?? '16');
-    if (measureCtx) {
-      measureCtx.font = font;
-      natural = measureCtx.measureText(tok.dataset.id!).width;
-    }
-    const condense = Math.min(1, w / natural);
+  const naturals = tokens.map((tok, i) => {
+    const { font } = measured[i]!;
+    if (!measureCtx) return tok.dataset.id!.length * 0.6 * parseFloat(font.split(' ')[2] ?? '16');
+    measureCtx.font = font;
+    return measureCtx.measureText(tok.dataset.id!).width;
+  });
+  const set = (tok: HTMLElement, condense: number, dx: number) => {
     tok.style.setProperty('--mk-sx', condense.toFixed(3));
+    tok.style.setProperty('--mk-dx', `${dx.toFixed(2)}px`);
     tok.classList.toggle('mk-t--tiny', condense < MIN_CONDENSE);
+  };
+
+  const tight: number[] = [];
+  tokens.forEach((tok, i) => {
+    const { w, left, right } = measured[i]!;
+    if (!w) return; // not laid out (a closed dialog); fitted when it opens
+    const natural = naturals[i]!;
+    const condense = Math.min(1, (w + left + right) / natural);
+    // centered on its token where it fits; otherwise slid toward the side
+    // with spare space
+    const over = Math.max(0, natural * condense - w) / 2;
+    set(tok, condense, over > left ? over - left : over > right ? right - over : 0);
+    if (condense < MIN_CONDENSE) tight.push(i);
   });
+
+  // a word is a run of tokens with no whitespace between them
+  const index = new Map(tokens.map((tok, i) => [tok, i]));
+  const done = new Set<number>();
+  for (const i of tight) {
+    if (done.has(i)) continue;
+    let first = i;
+    let last = i;
+    const prevOf = (k: number) => index.get(tokens[k]!.previousSibling as HTMLElement);
+    const nextOf = (k: number) => index.get(tokens[k]!.nextSibling as HTMLElement);
+    while (prevOf(first) !== undefined) first = prevOf(first)!;
+    while (nextOf(last) !== undefined) last = nextOf(last)!;
+    const word: number[] = [];
+    for (let k: number | undefined = first; k !== undefined; k = k === last ? undefined : nextOf(k)) {
+      word.push(k);
+      done.add(k);
+    }
+    if (word.length < 2) continue;
+    const start = measured[first]!.x - measured[first]!.left;
+    const room = measured[last]!.x + measured[last]!.w + measured[last]!.right - start;
+    const need = word.reduce((sum, k) => sum + naturals[k]!, 0);
+    const condense = Math.min(1, room / need);
+    let x = start + (room - need * condense) / 2;
+    for (const k of word) {
+      const width = naturals[k]! * condense;
+      const center = measured[k]!.x + measured[k]!.w / 2;
+      set(tokens[k]!, condense, x + width / 2 - center);
+      x += width;
+    }
+  }
 }
 
 /**
