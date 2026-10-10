@@ -39,9 +39,12 @@ const doc = machineContext();
 
 <style>
   /* the divider: a fixed track moved by --mk-split; the hit area is 20px
-     wide around the 1px line. Docked at the right edge it shows only its
-     grip (and only the grip takes the pointer, so the strip never blocks
-     content near the edge). */
+     wide around the 1px line. Three looks:
+     - at rest with room (.at-rest.roomy): in the right margin, line and
+       "humans | machines" labels showing — nothing touches content;
+     - at rest without room (.at-rest:not(.roomy), phones): a compact grip
+       inside the page gutter, the only part that takes the pointer;
+     - over content: a bare line whose labels appear on hover, focus, drag. */
   .machine-split {
     position: fixed;
     top: var(--nav-height);
@@ -74,21 +77,26 @@ const doc = machineContext();
     outline: none;
   }
 
-  .machine-split.docked {
-    margin-left: -26px;
+  .machine-split.at-rest:not(.roomy) {
+    margin-left: -20px;
     pointer-events: none;
   }
 
-  .machine-split.docked::before,
-  .machine-split.docked .split-human,
-  .machine-split.docked .split-machine {
+  .machine-split.at-rest:not(.roomy)::before {
     display: none;
   }
 
-  .machine-split.docked .split-grip {
+  /* hidden, not removed: computeRest() measures the labels */
+  .machine-split.at-rest:not(.roomy) .split-human,
+  .machine-split.at-rest:not(.roomy) .split-machine {
+    visibility: hidden;
+  }
+
+  /* centered 10px in from the edge, it stays inside the 20px page gutter */
+  .machine-split.at-rest:not(.roomy) .split-grip {
     pointer-events: auto;
-    width: 16px;
-    height: 56px;
+    width: 12px;
+    height: 52px;
     cursor: pointer;
   }
 
@@ -96,18 +104,18 @@ const doc = machineContext();
     display: none;
   }
 
-  .machine-split.docked .split-hint {
+  .machine-split.at-rest:not(.roomy) .split-hint {
     display: block;
     top: 50%;
-    right: calc(50% + 0.85rem);
+    right: calc(50% + 0.75rem);
     transform: translateY(-50%);
     color: var(--text-faint);
     opacity: 0;
     transition: opacity var(--speed) var(--ease), color var(--speed) var(--ease);
   }
 
-  .machine-split.docked:hover .split-hint,
-  .machine-split.docked:focus-visible .split-hint {
+  .machine-split.at-rest:not(.roomy):hover .split-hint,
+  .machine-split.at-rest:not(.roomy):focus-visible .split-hint {
     opacity: 1;
     color: var(--accent);
   }
@@ -147,14 +155,16 @@ const doc = machineContext();
     white-space: nowrap;
   }
 
-  /* the open divider stays a bare line; its labels appear while you hover,
-     focus or drag it */
+  /* over content the line stays bare (labels would sit on the page); they
+     appear while you hover, focus or drag it, and always at a roomy rest */
   .split-human,
   .split-machine {
     opacity: 0;
     transition: opacity var(--speed) var(--ease);
   }
 
+  .machine-split.at-rest.roomy .split-human,
+  .machine-split.at-rest.roomy .split-machine,
   .machine-split:hover .split-human,
   .machine-split:hover .split-machine,
   .machine-split:focus-visible .split-human,
@@ -169,18 +179,11 @@ const doc = machineContext();
     color: var(--text-secondary);
   }
 
-  .split-human::before {
-    content: '← ';
-  }
-
   .split-machine {
     left: calc(50% + 0.5rem);
     color: var(--accent);
   }
 
-  .split-machine::after {
-    content: ' →';
-  }
 
   .machine-bar {
     position: fixed;

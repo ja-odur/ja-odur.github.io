@@ -122,15 +122,19 @@ Read these before touching the relevant area — each one cost real debugging.
 
 ## "For Machines" mode
 
-A vertical divider is the only control (there is no nav toggle). Docked at the
-right edge, the page is plain human. Drag it left, or click its grip, and
+A vertical divider is the only control (there is no nav toggle). At rest it
+sits centered in the empty right margin with "humans | machines" labels
+showing; where the margin can't hold the labels at least 20px clear of the
+content column (phones, windows under ~1100px), it rests at the far edge as a
+compact grip inside the page gutter. Either way nothing touches content and
+the page is plain human. Drag it into the content, or click its grip, and
 everything right of the line is the page as a language model receives it: same
 layout, every word replaced in place by its token IDs — each ID in the word's
 own font, size and weight, on its baseline, condensed horizontally to the
 word's width so text and tokens meet at the divider at the same scale (hover
 shows the word; IDs that would need less than 30% width show the chip only). A click opens it a quarter
 of the way across the content column; a click, Esc, the bar's exit, or End
-docks it. A fixed bar gives the page's token count, `/llms.txt`, and "copy
+returns it to rest. A fixed bar gives the page's token count, `/llms.txt`, and "copy
 context" (the `machineContext()` doc). The position persists like the theme —
 `sessionStorage['mk-split']` (a fraction, or `default`), kept across
 navigations, cleared on a full reload by the `<head>` script. This is the
@@ -167,9 +171,12 @@ feature the owner cares most about — treat it as first-class, keep it tasteful
 - **One `.mk-run` span per text node.** Loose token spans inside a flex/grid
   parent (the hero kicker) each become an item and stop wrapping, which
   overflowed the page on phones.
-- **Docked, only the grip takes the pointer.** The divider's 20px hit strip
-  would otherwise block content at the right edge. Backs are built when the
-  grip is first hovered or focused, so the first drag never hitches.
+- **The token side switches on only when the line crosses into the content**
+  (`rest.contentRight`), not when it leaves its resting spot — in the margin
+  there's nothing to tokenize, so a normal visit builds nothing and shows no
+  bar. At a compact rest only the grip takes the pointer, so the hit strip
+  never blocks content near the edge. Backs are built when the grip is first
+  hovered or focused, so the first drag never hitches.
 - **`mk-pending` stops the plain-text flash on navigation.** enhance.ts runs
   after first paint, so the `<head>` script adds `html.mk-pending` when
   `sessionStorage['mk-split']` is set; CSS hides `#main` + footer until the

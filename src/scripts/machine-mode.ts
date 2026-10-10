@@ -480,25 +480,61 @@ function updateCount(): void {
 /* -------------------------------- divider --------------------------------- */
 
 /**
- * The divider is the only control. Docked at the right edge, the whole page
- * is human and nothing is built. Drag it left — or click its handle — and
- * everything right of the line is the page as a language model receives it.
- * "Machine mode" is simply "the divider isn't docked". A click opens it a
- * quarter of the way across the content column (not the viewport, whose
- * outer quarter on a wide screen is empty margin); a click, Esc, or the
- * bar's exit docks it again. The position persists across navigation in
- * sessionStorage['mk-split'] and is cleared on a full reload, like the theme.
+ * The divider is the only control. At rest it sits in the empty right
+ * margin beside the content column, "humans | machines" labels showing —
+ * everything is still left of the line, so the page is plain human and
+ * nothing is built. Where the margin can't hold the labels without touching
+ * content (phones, narrow windows), it rests at the far edge instead as a
+ * compact grip inside the page gutter. Drag it into the content — or click
+ * its grip — and everything right of the line is the page as a language
+ * model receives it; "machine mode" is simply "the line is over content".
+ * A click opens it a quarter of the way across the content column; a click,
+ * Esc, or the bar's exit returns it to rest. The position persists across
+ * navigation in sessionStorage['mk-split'] and is cleared on a full reload,
+ * like the theme.
  */
-const DOCKED = 1;
 const STORE = 'mk-split';
+/** label offset from the line (0.5rem) plus breathing room from content */
+const LABEL_GAP = 20;
 /** divider position as a fraction of the content area's width */
-let splitAt = DOCKED;
+let splitAt = 1;
 let splitFrame = 0;
 /** once the visitor drags or arrow-keys it, resizes keep their fraction */
 let splitMoved = false;
 let engaged = false;
 
 const viewWidth = () => document.documentElement.clientWidth || window.innerWidth;
+
+/** where the divider rests, and where the content column ends (both px) */
+let rest = { x: 0, roomy: false, contentRight: 0 };
+
+/**
+ * Pick the resting spot: centered in the right margin if both labels fit
+ * there without coming within LABEL_GAP of the content column; otherwise the
+ * far edge. Measured from the nav's column, the widest one on every page.
+ */
+function computeRest(): void {
+  const vw = viewWidth();
+  const inner = document.querySelector<HTMLElement>('.nav-inner');
+  let contentRight = vw;
+  if (inner) {
+    const r = inner.getBoundingClientRect();
+    contentRight = r.right - parseFloat(getComputedStyle(inner).paddingRight);
+  }
+  const human = ui.split?.querySelector<HTMLElement>('.split-human')?.offsetWidth ?? 0;
+  const machine = ui.split?.querySelector<HTMLElement>('.split-machine')?.offsetWidth ?? 0;
+  const min = contentRight + human + LABEL_GAP;
+  const max = vw - machine - LABEL_GAP;
+  const roomy = human > 0 && min <= max;
+  rest = {
+    x: roomy ? Math.min(max, Math.max(min, (contentRight + vw) / 2)) : vw,
+    roomy,
+    contentRight,
+  };
+  ui.split?.classList.toggle('roomy', roomy);
+}
+
+const restAt = () => rest.x / viewWidth();
 
 /** a quarter of the way across the wide content column (the nav's) */
 function splitDefault(): number {
@@ -508,19 +544,22 @@ function splitDefault(): number {
 }
 
 function setSplit(fraction: number): void {
-  splitAt = Math.min(DOCKED, Math.max(0, fraction));
+  splitAt = Math.min(1, Math.max(0, fraction));
   const px = splitAt * viewWidth();
   document.documentElement.style.setProperty('--mk-split', `${px.toFixed(2)}px`);
   if (ui.split) {
     const pct = Math.round(splitAt * 100);
     ui.split.setAttribute('aria-valuenow', String(pct));
     ui.split.setAttribute('aria-valuetext', `${pct}% human-readable`);
-    ui.split.classList.toggle('docked', splitAt >= DOCKED);
   }
-  setEngaged(splitAt < DOCKED);
+  // the token side only matters once the line is over content; in the
+  // margin there is nothing to its right, so nothing is built
+  const on = px < rest.contentRight - 0.5;
+  ui.split?.classList.toggle('at-rest', !on);
+  setEngaged(on);
 }
 
-/** crossing the docked edge turns the token side on or off */
+/** the line crossing into the content turns the token side on or off */
 function setEngaged(on: boolean): void {
   if (on === engaged) return;
   engaged = on;
@@ -570,13 +609,14 @@ function openSplit(): void {
 }
 
 function dockSplit(): void {
-  slideSplit(DOCKED, 450);
+  slideSplit(restAt(), 450);
 }
 
 function initDivider(): void {
   const handle = ui.split;
   if (!handle) return;
   handle.hidden = false;
+  computeRest(); // labels have to be laid out to be measured
 
   // build ahead of the first drag, so the drag itself never hitches
   handle.addEventListener('pointerenter', build);
@@ -624,7 +664,7 @@ function initDivider(): void {
       ArrowLeft: splitAt - step,
       ArrowRight: splitAt + step,
       Home: 0,
-      End: DOCKED,
+      End: restAt(),
     };
     if (e.key in moves) {
       e.preventDefault();
@@ -637,7 +677,11 @@ function initDivider(): void {
 
   window.addEventListener(
     'resize',
-    () => setSplit(engaged && !splitMoved ? splitDefault() : splitAt),
+    () => {
+      computeRest();
+      if (!engaged) setSplit(restAt());
+      else setSplit(splitMoved ? splitAt : splitDefault());
+    },
     { passive: true }
   );
 }
@@ -677,7 +721,7 @@ export function initMachineMode(toast: (html: string, ms?: number) => void): voi
     splitMoved = true;
     setSplit(Number(saved));
   } else {
-    setSplit(DOCKED);
+    setSplit(restAt());
   }
   document.documentElement.classList.remove('mk-pending');
 }
